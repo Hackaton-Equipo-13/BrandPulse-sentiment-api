@@ -4,7 +4,7 @@ import { ThemeMode, SentimentType, SentimentResult, ConnectionConfig, Language }
 import { EmojiAtom } from './components/EmojiAtom';
 import { SentimentDisplay } from './components/SentimentDisplay';
 const AnalyticsCharts = lazy(() => import('./components/AnalyticsCharts').then(module => ({ default: module.AnalyticsCharts })));
-import { analyzeSentiment } from './services/sentimentService';
+import { analyzeSentiment, getSentimentHistory, SentimentLog } from './services/sentimentService';
 import { 
   Sun, Moon, Zap, 
   Terminal, ArrowDown, 
@@ -78,7 +78,11 @@ const App: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<SentimentResult | null>(null);
   const [conn] = useState<ConnectionConfig>({ endpoint: 'api.brandpulse.io', port: '8080' });
+  const [history, setHistory] = useState<SentimentLog[]>([]);
 
+  React.useEffect(() => {
+    getSentimentHistory().then(setHistory).catch(() => setHistory([]));
+  }, [result]);
   const t = translations[lang];
 
   const handleAnalyze = async () => {
@@ -171,9 +175,7 @@ const App: React.FC = () => {
         <div className="flex items-center gap-6">
           <EmojiAtom />
           <div>
-            <h1 className={`text-4xl font-bold tracking-tighter flex items-center gap-4 font-pixel ${isNeon ? 'neon-text-cyan' : isLight ? 'text-slate-900' : ''}`}>
-              {t.title} <span className={`text-[10px] opacity-70 px-3 py-1 border-4 ${isLight ? 'border-slate-900' : 'border-current'}`}>V.01 beta</span>
-            </h1>
+            <h1 className={`text-4xl font-bold tracking-tighter font-pixel ${isNeon ? 'neon-text-cyan' : isLight ? 'text-slate-900' : ''}`}>{t.title}</h1>
             <p className={`text-[12px] uppercase mt-2 opacity-60 font-pixel tracking-tighter ${isLight ? 'text-slate-700' : ''}`}>
               {t.subtitle}
             </p>
@@ -181,38 +183,11 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          {/* Language Switcher */}
-          <div className={`flex items-center gap-1 p-1 border-4 ${isNeon ? 'neon-border-cyan' : isLight ? 'border-slate-900 shadow-[4px_4px_0px_rgba(15,23,42,1)]' : 'border-current shadow-[4px_4px_0px_currentColor]'}`}>
-            {Object.values(Language).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`px-3 py-1 font-pixel text-[10px] transition-all uppercase ${
-                  lang === l ? (isLight ? 'bg-slate-900 text-white' : 'bg-current text-black') : 'opacity-40 hover:opacity-100'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-
-          {/* Theme Switcher */}
-          <div className={`flex items-center gap-2 p-1 border-4 ${isNeon ? 'neon-border-pink' : isLight ? 'border-slate-900 shadow-[4px_4px_0px_rgba(15,23,42,1)]' : 'border-current shadow-[4px_4px_0px_currentColor]'}`}>
-            <button 
-              onClick={() => setTheme(ThemeMode.LIGHT)}
-              className={`p-2 transition-all ${isLight ? 'bg-slate-900 text-white' : 'opacity-40 hover:opacity-100'}`}
-            >
-              <Sun size={18} />
-            </button>
-            <button 
-              onClick={() => setTheme(ThemeMode.DARK)}
-              className={`p-2 transition-all ${theme === ThemeMode.DARK ? 'bg-slate-100 text-slate-950' : 'opacity-40 hover:opacity-100'}`}
-            >
-              <Moon size={18} />
-            </button>
+          {/* Solo modo RGB */}
+          <div className={`flex items-center gap-2 p-1 border-4 neon-border-pink`}>
             <button 
               onClick={() => setTheme(ThemeMode.NEON)}
-              className={`p-2 transition-all ${isNeon ? 'bg-pink-600 shadow-[0_0_15px_#ff00ff] text-white' : 'opacity-40 hover:opacity-100'}`}
+              className={`p-2 transition-all bg-pink-600 shadow-[0_0_15px_#ff00ff] text-white`}
             >
               <Zap size={18} />
             </button>
@@ -249,56 +224,44 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* API DATA TYPES SECTION */}
-              <div className={`mb-10 p-4 border-2 ${isLight ? 'border-slate-200 bg-slate-50' : 'border-white/10 bg-white/5'}`}>
-                <h3 className={`text-[10px] font-pixel mb-4 flex items-center gap-2 ${isLight ? 'text-slate-600' : 'opacity-60'}`}>
-                  <Layers size={14} /> {t.dataTypes}
+              {/* API DATA TYPES SECTION + Importar archivo */}
+              <div className={`mb-10 p-4 border-2 neon-border-pink bg-black`}> 
+                <h3 className={`text-[10px] font-pixel mb-4 flex items-center gap-2 text-cyan-400`}>
+                  <Layers size={14} /> TIPOS DE DATOS ADMITIDOS
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {dataTypes.map((dt) => (
-                    <div key={dt.name} className="flex items-center gap-3">
-                      <dt.icon size={14} className={isNeon ? 'neon-text-cyan' : isLight ? 'text-slate-900' : ''} />
-                      <span className={`text-[9px] font-pixel uppercase ${isLight ? 'text-slate-800' : 'opacity-80'}`}>{dt.name}</span>
-                    </div>
-                  ))}
+                <div className="flex flex-col gap-4 items-center">
+                  <button
+                    className="w-full py-4 px-6 border-4 border-cyan-500/50 hover:border-cyan-500 text-cyan-400 rounded-lg font-pixel text-xs font-bold transition-all"
+                    onClick={() => document.getElementById('fileInput')?.click()}
+                  >
+                    ARRASTRA UN ARCHIVO .JSON, .CSV O EXCEL
+                  </button>
+                  <input
+                    id="fileInput"
+                    type="file"
+                    accept=".json,.csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    onChange={(e) => handleFile(e.target.files ? e.target.files[0] : null)}
+                    className="hidden"
+                  />
                 </div>
               </div>
 
-              <div
-                className="relative group"
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-              >
-                <div className={`w-full h-56 p-4 border-4 transition-all outline-none font-pixel text-[12px] leading-relaxed flex flex-col ${
-                    isNeon ? 'bg-black border-pink-500/30 text-pink-50' : 
-                    isLight ? 'bg-slate-50 border-slate-900 text-slate-900' : 
-                    'bg-white dark:bg-slate-900 border-current'
-                }`}>
+
+              <div className="relative group" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
+                <div className={`w-full h-56 p-4 border-4 transition-all outline-none font-pixel text-[12px] leading-relaxed flex flex-col ${isNeon ? 'bg-black border-pink-500/30 text-pink-50' : 'bg-white dark:bg-slate-900 border-current'}`}> 
                   <textarea
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Input text for analysis..."
+                    placeholder="Escribe tu comentario para análisis..."
                     className="w-full flex-1 p-4 bg-transparent resize-none outline-none font-pixel text-[12px] leading-relaxed"
                   />
-
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="text-[11px] opacity-60 font-pixel">
-                      {uploadedFileName ? `Archivo: ${uploadedFileName}` : 'Escribe o arrastra un archivo (.json .xml .avro .pb) aquí'}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label htmlFor="fileInput" className={`cursor-pointer p-2 border-4 ${isNeon ? 'neon-border-pink' : isLight ? 'border-slate-900' : 'border-current'}`}>
-                        <ArrowDown size={18} />
-                      </label>
-                      <input
-                        id="fileInput"
-                        type="file"
-                        accept=".json,.xml,.avro,.pb,application/octet-stream"
-                        onChange={(e) => handleFile(e.target.files ? e.target.files[0] : null)}
-                        className="hidden"
-                      />
-                    </div>
-                  </div>
+                  <button 
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || !inputText.trim()}
+                    className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] ${isAnalyzing ? 'opacity-50 cursor-not-allowed' : 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff]'}`}
+                  >
+                    {isAnalyzing ? t.waiting : (<>{t.execute} <Send size={20} /></>)}
+                  </button>
                 </div>
               </div>
 
@@ -320,15 +283,7 @@ const App: React.FC = () => {
               </button>
             </div>
 
-            <div className={`p-8 border-4 ${isNeon ? 'neon-border-cyan bg-black' : isLight ? 'border-slate-900 bg-white/50' : 'border-dashed border-current opacity-60'}`}>
-              <div className="flex items-center gap-3 mb-4 font-pixel">
-                <Database size={20} className={isLight ? 'text-slate-900' : ''} />
-                <h3 className={`text-[10px] font-bold uppercase ${isLight ? 'text-slate-900' : ''}`}>{t.enterprise}</h3>
-              </div>
-              <p className={`text-[11px] leading-relaxed font-pixel opacity-70 ${isLight ? 'text-slate-800 font-medium' : ''}`}>
-                {t.enterpriseText}
-              </p>
-            </div>
+            {/* Eliminado box de integración empresarial */}
           </div>
 
           <div className="lg:col-span-7 flex flex-col justify-start">
@@ -343,35 +298,42 @@ const App: React.FC = () => {
                   <AnalyticsCharts data={result} theme={theme} />
                 </Suspense>
 
-                <div className={`mt-16 p-10 border-4 text-center space-y-8 ${
-                  isNeon ? 'neon-border-cyan bg-black shadow-[8px_8px_0px_#00ffff]' : 
-                  isLight ? 'border-slate-900 bg-white shadow-[10px_10px_0px_rgba(15,23,42,1)]' :
-                  'border-current shadow-[10px_10px_0px_currentColor]'
-                }`}>
-                  <div className={`inline-flex items-center justify-center w-16 h-16 border-4 ${isLight ? 'border-slate-900' : 'border-current'} mb-2`}>
-                    <ArrowDown className="animate-bounce" size={24} />
-                  </div>
-                  <h3 className={`text-[14px] font-bold uppercase font-pixel tracking-widest ${isLight ? 'text-slate-900' : ''}`}>{t.outputFormats}</h3>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    {[
-                      { label: 'JSON', icon: FileJson },
-                      { label: 'CSV', icon: FileText },
-                      { label: 'XML', icon: FileCode },
-                      { label: 'AVRO', icon: Database },
-                      { label: 'PB', icon: Database },
-                    ].map((fmt) => (
-                      <button key={fmt.label} className={`py-4 border-4 transition-all flex flex-col items-center gap-2 hover:scale-110 font-pixel ${
-                        isNeon ? 'border-cyan-500/50 hover:border-cyan-500 text-cyan-400' : 
-                        isLight ? 'border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white' :
-                        'border-current hover:bg-current hover:text-slate-900'
-                      }`}>
-                        <fmt.icon size={18} />
-                        <span className="text-[10px] font-bold">{fmt.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            {/* Eliminado box de formatos de salida */}
+                    {/* Historial de comentarios */}
+                    <div className="container mx-auto mt-12 mb-8">
+                      <details className="w-full bg-white/10 rounded-lg p-4 cursor-pointer select-none">
+                        <summary className="font-bold text-lg mb-2">Historial de comentarios clasificados</summary>
+                        <div className="max-h-64 overflow-y-auto mt-4">
+                          <table className="w-full text-xs text-left">
+                            <thead>
+                              <tr className="border-b border-slate-300/20">
+                                <th className="py-1 pr-2">Fecha</th>
+                                <th className="py-1 pr-2">Comentario</th>
+                                <th className="py-1 pr-2">Clasificación</th>
+                                <th className="py-1 pr-2">Probabilidad</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {history.length === 0 && (
+                                <tr><td colSpan={4} className="text-center py-4 opacity-60">Sin historial</td></tr>
+                              )}
+                              {history.map((item) => (
+                                <tr key={item.id} className="border-b border-slate-300/10 hover:bg-slate-200/10">
+                                  <td className="py-1 pr-2 whitespace-nowrap">{new Date(item.fecha).toLocaleString()}</td>
+                                  <td className="py-1 pr-2 max-w-[300px] truncate" title={item.text}>{item.text}</td>
+                                  <td className="py-1 pr-2 font-bold">
+                                    {item.prevision === 'POSITIVE' && <span className="text-green-500">Positivo</span>}
+                                    {item.prevision === 'NEGATIVE' && <span className="text-red-500">Negativo</span>}
+                                    {item.prevision === 'NEUTRAL' && <span className="text-yellow-500">Neutral</span>}
+                                  </td>
+                                  <td className="py-1 pr-2">{item.probabilidad.toFixed(2)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </details>
+                    </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[600px] text-center opacity-30">

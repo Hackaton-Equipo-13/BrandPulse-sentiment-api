@@ -1,3 +1,15 @@
+export interface SentimentLog {
+  id: number;
+  text: string;
+  prevision: string;
+  probabilidad: number;
+  fecha: string;
+}
+
+export const getSentimentHistory = async (): Promise<SentimentLog[]> => {
+  const response = await fetch(`${API_BASE_URL}/history`);
+  return handleResponse<SentimentLog[]>(response);
+};
 import { SentimentResult, SentimentStats } from '../types';
 
 const API_BASE_URL = '/api/sentiment';

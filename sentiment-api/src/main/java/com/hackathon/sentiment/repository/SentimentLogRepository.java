@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SentimentLogRepository extends JpaRepository<SentimentLog, Long> {
 	long countByPrevision(String prevision);
+	java.util.List<SentimentLog> findAllByOrderByFechaDesc();
 }

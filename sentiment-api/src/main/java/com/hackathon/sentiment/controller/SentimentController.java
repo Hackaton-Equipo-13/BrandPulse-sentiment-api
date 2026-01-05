@@ -81,6 +81,12 @@ public class SentimentController {
         return ResponseEntity.ok(results);
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<List<com.hackathon.sentiment.entity.SentimentLog>> getHistory() {
+        List<com.hackathon.sentiment.entity.SentimentLog> history = sentimentService.getHistory();
+        return ResponseEntity.ok(history);
+    }
+
     @GetMapping("/stats")
     public ResponseEntity<SentimentStatsResponse> getStats() {
         SentimentStatsResponse stats = sentimentStatsService.getStats();

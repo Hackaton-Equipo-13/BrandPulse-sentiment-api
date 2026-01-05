@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
+
 import ai.onnxruntime.OrtException;
 
 @Service
@@ -29,7 +31,7 @@ public class SentimentService {
 
     public SentimentResponse predict(SentimentRequest request) {
         String sentiment = "NEUTRAL";
-        double probability = 0.5; // Default neutral probability
+        double probability = 0.5; // Probabilidad neutral por defecto
         String text = request.getText();
 
         // Handle uploaded base64 files with the prefix format:
@@ -64,10 +66,13 @@ public class SentimentService {
             float[] output = onnxModelHandler.predict(text);
             if (output != null && output.length > 0) {
                 probability = output[0];
-                if (probability > 0.6) {
+                // Rango neutro más pequeño para mayor precisión
+                if (probability > 0.55) {
                     sentiment = "POSITIVE";
-                } else if (probability < 0.4) {
+                } else if (probability < 0.45) {
                     sentiment = "NEGATIVE";
+                } else {
+                    sentiment = "NEUTRAL";
                 }
             }
         } catch (OrtException e) {
@@ -99,5 +104,9 @@ public class SentimentService {
         sentimentLogRepository.save(log);
 
         return new SentimentResponse(sentiment, score, snippet, snippet, snippet, breakdown);
+    }
+
+    public List<SentimentLog> getHistory() {
+        return sentimentLogRepository.findAllByOrderByFechaDesc();
     }
 }
