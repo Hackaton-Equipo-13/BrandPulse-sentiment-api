@@ -86,40 +86,22 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
         isNeon ? 'neon-border-cyan bg-black shadow-[10px_10px_0px_#00ffff]' : 'border-current bg-white/5 shadow-[12px_12px_0px_currentColor]'
       }`}>
         <h3 className="text-[11px] font-pixel uppercase mb-10 opacity-70 tracking-tighter flex items-center gap-2">
-          <div className="w-2 h-2 bg-current animate-pulse"/> _precision_matrix
+          <div className="w-2 h-2 bg-current animate-pulse"/> Precisión por categoría
         </h3>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} barSize={60} margin={{ top: 20 }}>
-              <XAxis 
-                dataKey="name" 
-                tick={{ fill: 'currentColor', fontSize: 9, fontFamily: 'Silkscreen' }} 
-                axisLine={{ stroke: 'currentColor', strokeWidth: 3 }} 
-                tickLine={false} 
-              />
-              <YAxis hide domain={[0, 100]} />
-              <Tooltip 
-                content={<CustomTooltip isNeon={isNeon} />}
-                cursor={{ fill: 'rgba(255,255,255,0.08)' }}
-              />
-              <Bar dataKey="value" animationDuration={800}>
-                {chartData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color}
-                    className="hover:brightness-125 transition-all cursor-pointer"
-                  />
-                ))}
-                <LabelList 
-                  dataKey="value" 
-                  position="top" 
-                  fill="currentColor" 
-                  formatter={(v: number) => `${v}%`} 
-                  className="text-[10px] font-pixel" 
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="flex flex-col gap-6 h-72 justify-center">
+          {chartData.map((entry, idx) => (
+            <div key={entry.name} className="flex items-center gap-4 w-full">
+              <span className="w-20 text-right font-pixel text-xs uppercase" style={{color: entry.color}}>{entry.name}</span>
+              <div className="flex-1 h-7 bg-slate-800/40 rounded-full overflow-hidden border-2 border-current relative">
+                <div 
+                  className="h-full transition-all duration-700 flex items-center pl-2 font-pixel text-xs font-bold"
+                  style={{ width: `${entry.value}%`, background: entry.color, color: '#fff', borderRadius: 8 }}
+                >
+                  {entry.value}%
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
