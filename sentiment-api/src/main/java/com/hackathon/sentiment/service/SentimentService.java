@@ -1,13 +1,18 @@
 package com.hackathon.sentiment.service;
 
+import com.hackathon.sentiment.dto.UrlSentimentRequest;
 import com.hackathon.sentiment.dto.SentimentRequest;
 import com.hackathon.sentiment.dto.SentimentResponse;
 import com.hackathon.sentiment.dto.Breakdown;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import com.hackathon.sentiment.onnx.OnnxModelHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.hackathon.sentiment.entity.SentimentLog;
 import com.hackathon.sentiment.repository.SentimentLogRepository;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,6 +109,22 @@ public class SentimentService {
         sentimentLogRepository.save(log);
 
         return new SentimentResponse(sentiment, score, snippet, snippet, snippet, breakdown);
+    }
+
+    public SentimentResponse predictFromUrl(UrlSentimentRequest request) {
+        try {
+            Document doc = Jsoup.connect(request.getUrl()).get();
+            String text = doc.body().text();
+            SentimentRequest sentimentRequest = new SentimentRequest();
+            sentimentRequest.setText(text);
+            return predict(sentimentRequest);
+        } catch (IOException e) {
+            System.err.println("Error fetching URL: " + e.getMessage());
+            // Consider a more specific error response
+            SentimentRequest sentimentRequest = new SentimentRequest();
+            sentimentRequest.setText(""); // Empty text for error case
+            return predict(sentimentRequest);
+        }
     }
 
     public List<SentimentLog> getHistory() {

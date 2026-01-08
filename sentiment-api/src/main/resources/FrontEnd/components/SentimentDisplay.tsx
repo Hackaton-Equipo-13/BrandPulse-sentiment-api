@@ -124,7 +124,7 @@ export const SentimentDisplay: React.FC<SentimentDisplayProps> = ({ result, them
         {/* Floating Active Comment (The "Visual Player" part) */}
         {activeNode && (
           <div 
-            className={`absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-64 p-5 border-4 backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-300 z-30 ${
+            className={`absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-64 p-5 border-4 backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-300 z-30 rounded-lg ${
               isNeon ? 'neon-border-cyan bg-black/90' : isLight ? 'border-slate-900 bg-white/95 shadow-[8px_8px_0px_rgba(0,0,0,1)]' : 'border-current bg-slate-950/90'
             }`}
           >
@@ -138,7 +138,7 @@ export const SentimentDisplay: React.FC<SentimentDisplayProps> = ({ result, them
             </p>
             <div className="mt-4 flex gap-1 h-1">
               {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="flex-1 bg-current opacity-20 animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+                <div key={i} className="flex-1 bg-current opacity-20 animate-pulse rounded-lg" style={{ animationDelay: `${i * 100}ms` }} />
               ))}
             </div>
           </div>

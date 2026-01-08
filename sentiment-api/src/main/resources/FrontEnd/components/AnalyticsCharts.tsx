@@ -12,14 +12,14 @@ const CustomTooltip = ({ active, payload, isNeon }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     return (
-      <div className={`bg-black p-5 border-4 font-pixel text-[10px] shadow-[10px_10px_0px_rgba(0,0,0,0.6)] ${
+      <div className={`bg-black p-5 border-4 font-pixel text-[10px] shadow-[10px_10px_0px_rgba(0,0,0,0.6)] rounded-lg ${
         isNeon ? 'neon-border-cyan neon-text-cyan' : 'border-current'
       }`}>
         <p className="mb-3 tracking-tighter">{`ENTRY: ${data.name.toUpperCase()}`}</p>
         <p className="mb-3">{`LOAD: ${data.value}%`}</p>
-        <div className="w-full bg-white/10 h-3 border-2 border-current/20">
+        <div className="w-full bg-white/10 h-3 border-2 border-current/20 rounded-lg">
           <div 
-            className="h-full bg-current transition-all duration-500" 
+            className="h-full bg-current transition-all duration-500 rounded-lg" 
             style={{ width: `${data.value}%` }}
           />
         </div>
@@ -41,7 +41,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full mt-16">
       {/* Distribution Matrix */}
-      <div className={`p-10 border-4 transition-all hover:translate-y-[-8px] group ${
+      <div className={`p-10 border-4 transition-all hover:translate-y-[-8px] group rounded-lg ${
         isNeon ? 'neon-border-pink bg-black shadow-[10px_10px_0px_#ff00ff]' : 'border-current bg-white/5 shadow-[12px_12px_0px_currentColor]'
       }`}>
         <h3 className="text-[11px] font-pixel uppercase mb-10 opacity-70 tracking-tighter flex items-center gap-2">
@@ -82,7 +82,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
       </div>
 
       {/* Precision Stats */}
-      <div className={`p-10 border-4 transition-all hover:translate-y-[-8px] group ${
+      <div className={`p-10 border-4 transition-all hover:translate-y-[-8px] group rounded-lg ${
         isNeon ? 'neon-border-cyan bg-black shadow-[10px_10px_0px_#00ffff]' : 'border-current bg-white/5 shadow-[12px_12px_0px_currentColor]'
       }`}>
         <h3 className="text-[11px] font-pixel uppercase mb-10 opacity-70 tracking-tighter flex items-center gap-2">

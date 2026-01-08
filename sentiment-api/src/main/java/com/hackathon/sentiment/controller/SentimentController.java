@@ -1,5 +1,6 @@
 package com.hackathon.sentiment.controller;
 
+import com.hackathon.sentiment.dto.UrlSentimentRequest;
 import com.hackathon.sentiment.dto.SentimentRequest;
 import com.hackathon.sentiment.dto.SentimentResponse;
 import jakarta.validation.Valid;
@@ -32,6 +33,12 @@ public class SentimentController {
     @PostMapping
     public ResponseEntity<SentimentResponse> analyzeSentiment(@Valid @RequestBody SentimentRequest request) {
         SentimentResponse response = sentimentService.predict(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/url")
+    public ResponseEntity<SentimentResponse> analyzeUrlSentiment(@Valid @RequestBody UrlSentimentRequest request) {
+        SentimentResponse response = sentimentService.predictFromUrl(request);
         return ResponseEntity.ok(response);
     }
 

@@ -243,7 +243,7 @@ export const PixelFace: React.FC<PixelFaceProps> = ({ type, percentage, breakdow
       </svg>
 
       {/* Sentiment Tag */}
-      <div className={`mt-8 px-6 py-1.5 border-4 ${isNeon ? 'neon-border-cyan bg-black' : 'border-slate-900 bg-white dark:bg-slate-900'} relative z-20 flex items-center gap-3`}>
+      <div className={`mt-8 px-6 py-1.5 border-4 ${isNeon ? 'neon-border-cyan bg-black' : 'border-slate-900 bg-white dark:bg-slate-900'} relative z-20 flex items-center gap-3 rounded-lg`}>
          <div className="w-2 h-2 bg-current animate-ping" style={{ color: colors.base }} />
          <span className={`font-pixel text-[11px] tracking-widest ${isNeon ? 'text-white' : 'text-current'}`}>
            {type} {percentage.toFixed(0)}%

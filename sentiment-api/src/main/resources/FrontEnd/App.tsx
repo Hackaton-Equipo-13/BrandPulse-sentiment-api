@@ -1,19 +1,12 @@
 
-import React, { useState, Suspense, lazy } from 'react';
-import * as XLSX from 'xlsx';
-import { extractTextsFromFile } from './extractTextsFromFile';
-import { ThemeMode, SentimentType, SentimentResult, ConnectionConfig, Language } from './types';
-import { EmojiAtom } from './components/EmojiAtom';
-import { SentimentDisplay } from './components/SentimentDisplay';
-const AnalyticsCharts = lazy(() => import('./components/AnalyticsCharts').then(module => ({ default: module.AnalyticsCharts })));
-import { analyzeSentiment, getSentimentHistory, SentimentLog } from './services/sentimentService';
+import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory, SentimentLog } from './services/sentimentService';
 import { 
   Sun, Moon, Zap, 
   Terminal, ArrowDown, 
   Send, 
   Database,
   FileJson, FileText, FileCode,
-  Globe, Cpu, Layers
+  Globe, Cpu, Layers, Link
 } from 'lucide-react';
 
 const translations = {
@@ -21,6 +14,7 @@ const translations = {
     title: "BRAND PULSE",
     subtitle: "Motor de Sentimiento Neuronal",
     terminal: "Análisis de Sentimiento",
+    url_terminal: "Análisis de URL",
     execute: "_EJECUTAR_ANALISIS",
     waiting: "ESPERANDO...",
     idleTitle: "SISTEMA_INACTIVO",
@@ -39,6 +33,7 @@ const translations = {
     title: "BRAND PULSE",
     subtitle: "Neural Sentiment Engine",
     terminal: "Sentiment Analysis",
+    url_terminal: "URL Analysis",
     execute: "_EXECUTE_ANALYSIS",
     waiting: "WAITING...",
     idleTitle: "SYSTEM_IDLE",
@@ -57,6 +52,7 @@ const translations = {
     title: "BRAND PULSE",
     subtitle: "Motor de Sensação Neuronal",
     terminal: "análise de sentimento",
+    url_terminal: "Análise de URL",
     execute: "_EXECUTAR_ANALISE",
     waiting: "AGUARDANDO...",
     idleTitle: "SISTEMA_INATIVO",
@@ -82,6 +78,7 @@ const App: React.FC = () => {
   ];
   const [lang, setLang] = useState<Language>(Language.ES);
   const [inputText, setInputText] = useState('');
+  const [urlInput, setUrlInput] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<SentimentResult | null>(null);
   const [conn] = useState<ConnectionConfig>({ endpoint: 'api.brandpulse.io', port: '8080' });
@@ -97,6 +94,19 @@ const App: React.FC = () => {
     setIsAnalyzing(true);
     try {
       const data = await analyzeSentiment(inputText);
+      setResult(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleUrlAnalyze = async () => {
+    if (!urlInput.trim()) return;
+    setIsAnalyzing(true);
+    try {
+      const data = await analyzeSentimentFromUrl(urlInput);
       setResult(data);
     } catch (error) {
       console.error(error);
@@ -183,7 +193,7 @@ const App: React.FC = () => {
               <button
                 key={opt.mode}
                 onClick={() => setTheme(opt.mode)}
-                className={`p-2 rounded transition-all border-2 font-pixel text-xs flex items-center ${theme === opt.mode ? 'bg-pink-600 text-white border-pink-500 shadow-[0_0_15px_#ff00ff]' : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'}`}
+                className={`p-2 rounded-lg transition-all border-2 font-pixel text-xs flex items-center ${theme === opt.mode ? 'bg-pink-600 text-white border-pink-500 shadow-[0_0_15px_#ff00ff]' : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'}`}
                 title={opt.mode === ThemeMode.DARK ? 'Oscuro' : 'Neón'}
               >
                 {opt.icon}
@@ -200,7 +210,7 @@ const App: React.FC = () => {
               <button
                 key={opt.value}
                 onClick={() => setLang(opt.value as Language)}
-                className={`p-2 rounded border-2 font-pixel text-xs flex items-center ${lang === opt.value ? 'bg-pink-600 text-white border-pink-500 shadow-[0_0_15px_#ff00ff]' : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'}`}
+                className={`p-2 rounded-lg border-2 font-pixel text-xs flex items-center ${lang === opt.value ? 'bg-pink-600 text-white border-pink-500 shadow-[0_0_15px_#ff00ff]' : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800'}`}
                 title={opt.value.toUpperCase()}
               >
                 {opt.icon}
@@ -213,13 +223,13 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           {/* Columna izquierda */}
           <div className="lg:col-span-5 space-y-12">
-            <div className={`p-10 border-4 transition-all ${isNeon ? 'neon-border-pink bg-black shadow-[8px_8px_0px_#ff00ff]' : isLight ? 'border-slate-900 bg-white shadow-[10px_10px_0px_rgba(15,23,42,1)]' : 'border-current shadow-[10px_10px_0px_currentColor]'}`}> 
+            <div className={`p-10 border-4 transition-all rounded-lg ${isNeon ? 'neon-border-pink bg-black shadow-[8px_8px_0px_#ff00ff]' : isLight ? 'border-slate-900 bg-white shadow-[10px_10px_0px_rgba(15,23,42,1)]' : 'border-current shadow-[10px_10px_0px_currentColor]'}`}> 
               <div className="flex items-center gap-3 mb-8">
                 <Terminal size={24} className={isNeon ? 'neon-text-pink' : isLight ? 'text-slate-900' : ''} />
                 <h2 className={`font-bold uppercase text-[12px] font-pixel tracking-tighter ${isLight ? 'text-slate-900' : ''}`}>{t.terminal}</h2>
               </div>
               {/* API DATA TYPES SECTION + Importar archivo */}
-              <div className={`mb-10 p-4 border-2 neon-border-pink bg-black`}>
+              <div className={`mb-10 p-4 border-2 neon-border-pink bg-black rounded-lg`}>
                 <h3 className={`text-[10px] font-pixel mb-4 flex items-center gap-2 text-cyan-400`}>
                   <Layers size={14} /> TIPOS DE DATOS ADMITIDOS
                 </h3>
@@ -240,17 +250,17 @@ const App: React.FC = () => {
                 </div>
               </div>
               <div className="relative group" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
-                <div className={`w-full h-56 p-4 border-4 transition-all outline-none font-pixel text-[12px] leading-relaxed flex flex-col ${isNeon ? 'bg-black border-pink-500/30 text-pink-50' : 'bg-white dark:bg-slate-900 border-current'}`}> 
+                <div className={`w-full h-56 p-4 border-4 transition-all outline-none font-pixel text-[12px] leading-relaxed flex flex-col rounded-lg ${isNeon ? 'bg-black border-pink-500/30 text-pink-50' : 'bg-white dark:bg-slate-900 border-current'}`}> 
                   <textarea
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder="Escribe tu comentario para análisis o adjunta un archivo .json, .csv, .xlsx..."
-                    className="w-full flex-1 p-4 bg-transparent resize-none outline-none font-pixel text-[12px] leading-relaxed"
+                    className="w-full flex-1 p-4 bg-transparent resize-none outline-none font-pixel text-[12px] leading-relaxed rounded-lg"
                   />
                   <button
                     onClick={handleAnalyze}
                     disabled={isAnalyzing || !inputText.trim()}
-                    className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] ${
+                    className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] rounded-lg ${
                       isAnalyzing ? 'opacity-50 cursor-not-allowed' :
                       isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff]' :
                       isLight ? 'bg-slate-900 text-white hover:bg-slate-800 hover:translate-y-[-4px]' :
@@ -262,6 +272,33 @@ const App: React.FC = () => {
                   {uploadedFileName && (
                     <div className="mt-2 text-xs text-cyan-400 font-pixel truncate">Archivo cargado: {uploadedFileName}</div>
                   )}
+                </div>
+              </div>
+              <div className="flex items-center gap-3 my-8">
+                <Link size={24} className={isNeon ? 'neon-text-pink' : isLight ? 'text-slate-900' : ''} />
+                <h2 className={`font-bold uppercase text-[12px] font-pixel tracking-tighter ${isLight ? 'text-slate-900' : ''}`}>{t.url_terminal}</h2>
+              </div>
+              <div className="relative group">
+                <div className={`w-full p-4 border-4 transition-all outline-none font-pixel text-[12px] leading-relaxed flex flex-col rounded-lg ${isNeon ? 'bg-black border-pink-500/30 text-pink-50' : 'bg-white dark:bg-slate-900 border-current'}`}> 
+                  <input
+                    type="text"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    placeholder="Ingresa una URL para analizar reviews..."
+                    className="w-full p-4 bg-transparent resize-none outline-none font-pixel text-[12px] leading-relaxed rounded-lg"
+                  />
+                  <button
+                    onClick={handleUrlAnalyze}
+                    disabled={isAnalyzing || !urlInput.trim()}
+                    className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] rounded-lg ${
+                      isAnalyzing ? 'opacity-50 cursor-not-allowed' :
+                      isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff]' :
+                      isLight ? 'bg-slate-900 text-white hover:bg-slate-800 hover:translate-y-[-4px]' :
+                      'bg-current text-slate-900 dark:text-slate-900 hover:translate-y-[-4px] active:translate-y-0'
+                    }`}
+                  >
+                    {isAnalyzing ? t.waiting : (<>{t.execute} <Send size={20} /></>)}
+                  </button>
                 </div>
               </div>
             </div>
@@ -281,7 +318,7 @@ const App: React.FC = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[600px] text-center opacity-30">
-                <div className={`w-24 h-24 border-8 border-current border-t-transparent animate-spin mb-10 ${isLight ? 'border-slate-900 border-t-transparent' : ''}`} />
+                <div className={`w-24 h-24 border-8 border-current border-t-transparent animate-spin mb-10 rounded-full ${isLight ? 'border-slate-900 border-t-transparent' : ''}`} />
                 <h3 className={`text-3xl font-bold uppercase tracking-[0.3em] mb-4 font-pixel ${isLight ? 'text-slate-900' : ''}`}>{t.idleTitle}</h3>
                 <p className={`text-[14px] font-pixel leading-tight ${isLight ? 'text-slate-800' : ''}`}>{t.idleSub}</p>
               </div>
@@ -291,9 +328,9 @@ const App: React.FC = () => {
         {/* Historial de comentarios abarcando ambas columnas */}
         <div className="w-full bg-white/10 rounded-lg p-4 select-none mt-12 mb-8 max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-lg">Historial de comentarios clasificados</span>
+            <span className="font-pixel text-lg">Historial de comentarios clasificados</span>
             <button
-              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-pixel text-xs rounded shadow"
+              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-pixel text-xs rounded-lg shadow"
               onClick={() => downloadHistoryAndChart(history, result)}
             >
               Descargar historial y gráfica
