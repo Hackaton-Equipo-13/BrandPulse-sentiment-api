@@ -20,7 +20,10 @@ import path from 'path';
                       if (id.includes('recharts') || id.includes('d3')) {
                         return 'vendor_charts';
                       }
-                      return 'vendor_react'; 
+                      if (id.includes('react') || id.includes('react-dom')) {
+                        return 'vendor_react_dom';
+                      }
+                      return 'vendor'; // All other node_modules
                     }
                   },
                 },
