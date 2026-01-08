@@ -56,12 +56,16 @@
 
       @keyframes party-popper-glitter {
         0% {
-          transform: translate(-50%, -50%) scale(1);
+          transform: translate(-50%, -50%) scale(0.8); /* Start slightly smaller */
+          opacity: 0.8;
+        }
+        50% {
+          transform: translate(calc(-50% + var(--translate-x)), calc(-50% + var(--translate-y))) scale(1.2); /* Grow and move out */
           opacity: 1;
         }
         100% {
-          transform: translate(calc(-50% + var(--translate-x)), calc(-50% + var(--translate-y))) scale(0);
-          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.8); /* Shrink and return to center */
+          opacity: 0.8;
         }
       }
       

@@ -145,7 +145,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
                 content={<CustomTooltip isNeon={isNeon} />}
                 cursor={{ fill: 'rgba(255,255,255,0.08)' }}
               />
-              <Bar dataKey="value" animationDuration={800}>
+              <Bar dataKey="value" animationDuration={800} radius={[10, 10, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 

@@ -85,10 +85,18 @@ const App: React.FC = () => {
   const [conn] = useState<ConnectionConfig>({ endpoint: 'api.brandpulse.io', port: '8080' });
   const [history, setHistory] = useState<SentimentLog[]>([]);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   useEffect(() => {
     getSentimentHistory().then(setHistory).catch(() => setHistory([]));
   }, [result]);
+
+  const totalPages = Math.ceil(history.length / itemsPerPage);
+  const paginatedHistory = history.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
   const t = translations[lang];
 
   const handleTextAnalyze = async () => {
@@ -405,10 +413,10 @@ const App: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {history.length === 0 && (
+                {paginatedHistory.length === 0 && (
                   <tr><td colSpan={4} className="text-center py-4 opacity-60">Sin historial</td></tr>
                 )}
-                {history.map((item) => (
+                {paginatedHistory.map((item) => (
                   <tr key={item.id} className="border-b border-slate-300/10 hover:bg-slate-200/10">
                     <td className="py-1 pr-2 whitespace-nowrap">{new Date(item.fecha).toLocaleString()}</td>
                     <td className="py-1 pr-2 max-w-[600px] truncate" title={item.text}>{item.text}</td>
@@ -422,6 +430,29 @@ const App: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-4 mt-4">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 font-ibm-plex text-xs rounded-lg shadow transition-transform hover:scale-105 ${
+                    isLight ? 'bg-slate-200 text-slate-800 disabled:opacity-50' : 'bg-slate-700 text-white disabled:opacity-50'
+                  }`}
+                >
+                  Anterior
+                </button>
+                <span className="font-ibm-plex text-sm">Página {currentPage} de {totalPages}</span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 font-ibm-plex text-xs rounded-lg shadow transition-transform hover:scale-105 ${
+                    isLight ? 'bg-slate-200 text-slate-800 disabled:opacity-50' : 'bg-slate-700 text-white disabled:opacity-50'
+                  }`}
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>
