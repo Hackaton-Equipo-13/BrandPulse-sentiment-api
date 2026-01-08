@@ -1,12 +1,11 @@
-
 import React, { useState, Suspense, lazy, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { extractTextsFromFile } from './extractTextsFromFile';
-import { ThemeMode, SentimentType, SentimentResult, ConnectionConfig, Language } from './types';
+import { ThemeMode, SentimentType, SentimentResult, ConnectionConfig, Language, SentimentLog } from './types';
 import { EmojiAtom } from './components/EmojiAtom';
 import { SentimentDisplay } from './components/SentimentDisplay';
 const AnalyticsCharts = lazy(() => import('./components/AnalyticsCharts').then(module => ({ default: module.AnalyticsCharts })));
-import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory, SentimentLog } from './services/sentimentService';
+import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory } from './services/sentimentService';
 import { 
   Sun, Moon, Zap, 
   Terminal, ArrowDown, 
@@ -85,6 +84,7 @@ const App: React.FC = () => {
   const [result, setResult] = useState<SentimentResult | null>(null);
   const [conn] = useState<ConnectionConfig>({ endpoint: 'api.brandpulse.io', port: '8080' });
   const [history, setHistory] = useState<SentimentLog[]>([]);
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
 
   useEffect(() => {
     getSentimentHistory().then(setHistory).catch(() => setHistory([]));
@@ -260,8 +260,8 @@ const App: React.FC = () => {
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   placeholder="https://ejemplo.com/reviews"
-                  className={`w-full p-4 border-4 outline-none font-pixel text-[12px] leading-relaxed rounded-lg ${ 
-                    isNeon ? 'bg-black border-pink-500/30 text-pink-50' : 
+                  className={`w-full p-4 border-4 outline-none font-pixel text-[12px] leading-relaxed rounded-2xl ${ 
+                    isNeon ? 'bg-black border-pink-500/30 text-pink-50 neon-animated-border' : 
                     isLight ? 'bg-slate-50 border-slate-900 text-slate-900' : 
                     'bg-white dark:bg-slate-900 border-current'
                   }`}
@@ -292,7 +292,7 @@ const App: React.FC = () => {
               </div>
 
               <div 
-                className={`relative group p-4 border-4 rounded-lg transition-all flex flex-col ${isNeon ? 'bg-black border-pink-500/30' : isLight ? 'bg-slate-50 border-slate-900' : 'bg-slate-900 border-current'}`} 
+                className={`relative group p-4 border-4 rounded-2xl transition-all flex flex-col ${isNeon ? 'bg-black border-pink-500/30 neon-animated-border' : isLight ? 'bg-slate-50 border-slate-900' : 'bg-slate-900 border-current'}`} 
                 onDrop={handleDrop} 
                 onDragOver={(e) => e.preventDefault()}
                 onClick={() => document.getElementById('fileInput')?.click()} // Trigger hidden file input
@@ -314,7 +314,7 @@ const App: React.FC = () => {
                   onClick={handleGeneralAnalyze}
                   disabled={isAnalyzing || (!inputText.trim() && !urlInput.trim())}
                   className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] rounded-lg ${
-                    isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff]' :
+                    isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff] neon-animated-border' :
                     isLight ? 'bg-slate-900 text-white hover:bg-slate-800' :
                     'bg-current text-slate-900 hover:bg-slate-300'
                   } ${ (isAnalyzing || (!inputText.trim() && !urlInput.trim())) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-100' }`}
@@ -359,16 +359,43 @@ const App: React.FC = () => {
         {/* Historial de comentarios */}
         <div className={`w-full bg-white/10 rounded-lg p-4 select-none mt-12 mb-8 max-w-7xl mx-auto ${isLight ? 'bg-white/80' : ''}`}>
           <div className="flex justify-between items-center mb-2">
-            <span className="font-pixel text-lg">Historial de comentarios clasificados</span>
-            <button
-              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-pixel text-xs rounded-lg shadow transition-transform hover:scale-105"
-              onClick={() => downloadHistoryAndChart(history, result)}
-            >
-              Descargar historial y gráfica
-            </button>
+            <span className="font-doto text-lg">Historial de comentarios clasificados</span>
+            <div className="relative">
+              <button
+                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-ibm-plex text-xs rounded-lg shadow transition-transform hover:scale-105"
+                onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+              >
+                Descargar historial
+              </button>
+              {showDownloadMenu && (
+                <div className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg z-20 ${isLight ? 'bg-white' : 'bg-slate-800'}`}>
+                  <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); downloadHistory('xlsx', history); setShowDownloadMenu(false); }}
+                    className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
+                  >
+                    Descargar como XLSX
+                  </a>
+                  <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); downloadHistory('csv', history); setShowDownloadMenu(false); }}
+                    className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
+                  >
+                    Descargar como CSV
+                  </a>
+                  <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); downloadHistory('json', history); setShowDownloadMenu(false); }}
+                    className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
+                  >
+                    Descargar como JSON
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
           <div className="w-full mt-4 overflow-x-auto">
-            <table className="min-w-full w-full text-xs text-left">
+            <table className="min-w-full w-full text-xs text-left font-ibm-plex">
               <thead>
                 <tr className="border-b border-slate-300/20">
                   <th className="py-1 pr-2">Fecha</th>
@@ -402,40 +429,47 @@ const App: React.FC = () => {
   );
 }
 
-// Utilidad para descargar historial y gráfica
-function downloadHistoryAndChart(history, result) {
-  // Descargar historial como Excel
-  const wsData = [
-    ['Fecha', 'Comentario', 'Clasificación', 'Probabilidad'],
-    ...history.map(item => [
-      new Date(item.fecha).toLocaleString(),
-      item.text || '',
-      item.prevision,
-      item.probabilidad
-    ])
-  ];
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Historial');
+// Utilidad para descargar historial
+function downloadHistory(format: 'xlsx' | 'csv' | 'json', history: SentimentLog[]) {
+  const historyData = history.map(item => ({
+    Fecha: new Date(item.fecha).toLocaleString(),
+    Comentario: item.text || '',
+    Clasificacion: item.prevision,
+    Probabilidad: item.probabilidad
+  }));
 
-  // Descargar gráfica como imagen (si existe)
-  const chartCanvas = document.querySelector('canvas');
-  if (chartCanvas) {
-    const imgURL = chartCanvas.toDataURL('image/png');
-    const a2 = document.createElement('a');
-    a2.href = imgURL;
-    a2.download = 'grafica_sentimientos.png';
-    a2.click();
+  if (format === 'xlsx') {
+    const ws = XLSX.utils.json_to_sheet(historyData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Historial');
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'historial_sentimientos.xlsx';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } else if (format === 'csv') {
+    const ws = XLSX.utils.json_to_sheet(historyData);
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'historial_sentimientos.csv';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } else if (format === 'json') {
+    const json = JSON.stringify(historyData, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'historial_sentimientos.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-
-  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([wbout], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'historial_sentimientos.xlsx';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export default App;

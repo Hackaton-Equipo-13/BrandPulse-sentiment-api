@@ -33,9 +33,9 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
   const isNeon = theme === ThemeMode.NEON;
   
   const chartData = [
-    { name: 'Positivo', value: data.breakdown.positive, color: isNeon ? '#00ffff' : '#10b981', gradientId: 'gradientPositive' },
-    { name: 'Neutro', value: data.breakdown.neutral, color: isNeon ? '#f59e0b' : '#f59e0b', gradientId: 'gradientNeutral' },
-    { name: 'Negativo', value: data.breakdown.negative, color: isNeon ? '#ff00ff' : '#f43f5e', gradientId: 'gradientNegative' },
+    { name: 'Positivo', value: Number(data.breakdown.positive.toFixed(0)), color: isNeon ? '#00ffff' : '#10b981', gradientId: 'gradientPositive' },
+    { name: 'Neutro', value: Number(data.breakdown.neutral.toFixed(0)), color: isNeon ? '#f59e0b' : '#f59e0b', gradientId: 'gradientNeutral' },
+    { name: 'Negativo', value: Number(data.breakdown.negative.toFixed(0)), color: isNeon ? '#ff00ff' : '#f43f5e', gradientId: 'gradientNegative' },
   ];
 
   return (

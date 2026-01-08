@@ -44,3 +44,11 @@ export interface ConnectionConfig {
   endpoint: string;
   port: string;
 }
+
+export interface SentimentLog {
+  id: number;
+  text: string;
+  prevision: SentimentType;
+  probabilidad: number;
+  fecha: string;
+}

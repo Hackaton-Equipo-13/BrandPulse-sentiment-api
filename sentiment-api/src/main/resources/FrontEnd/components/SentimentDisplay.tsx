@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SentimentType, ThemeMode, SentimentResult } from '../types';
 import { PixelFace } from './PixelFace';
+import PartyPopperGlitter from './PartyPopperGlitter';
 
 interface SentimentDisplayProps {
   result: SentimentResult;
@@ -114,6 +115,7 @@ export const SentimentDisplay: React.FC<SentimentDisplayProps> = ({ result, them
             size={180}
             isNeon={isNeon}
           />
+          {sentiment === SentimentType.POSITIVE && <PartyPopperGlitter />}
           <span className={`text-[10px] uppercase font-pixel tracking-[0.3em] mt-8 p-1 px-3 border-2 ${
              isNeon ? 'neon-text-cyan neon-border-cyan' : isLight ? 'text-slate-900 border-slate-900' : 'text-current border-current'
           }`}>
