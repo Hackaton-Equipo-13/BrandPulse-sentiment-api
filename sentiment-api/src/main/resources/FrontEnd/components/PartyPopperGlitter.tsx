@@ -5,30 +5,42 @@ interface PartyPopperGlitterProps {
   duration?: number; // Animation duration in seconds
   offsetTransformX?: number; // Base offset for the whole glitter container
   offsetTransformY?: number; // Base offset for the whole glitter container
+  animationDelay?: number; // Delay before the whole component's animation starts (in seconds)
+  isSunBurst?: boolean; // If true, create a larger, sun-shaped burst effect
 }
 
 const PartyPopperGlitter: React.FC<PartyPopperGlitterProps> = ({ 
   duration = 1.5, 
   offsetTransformX = 100, 
-  offsetTransformY = -50 
+  offsetTransformY = -50,
+  animationDelay = 0,
+  isSunBurst = false
 }) => {
   const colors = ['#10b981', '#34d399', '#fbbf24', '#fef3c7', '#d1fae5'];
-  const numberOfParticles = 40; // Increased number of particles
+  
+  const numberOfParticles = isSunBurst ? 60 : 40; // More particles for sun burst
+  const spreadDistance = isSunBurst ? 150 + Math.random() * 50 : 80 + Math.random() * 20; // Larger spread for sun burst
+  const baseDuration = isSunBurst ? 2.5 : duration; // Longer base duration for sun burst
 
   const particles = Array.from({ length: numberOfParticles }).map((_, i) => {
     const angle = Math.random() * Math.PI * 2; // Random angle
-    const distance = Math.random() * 80 + 20; // Distance from center, 20-100px
+    const distance = spreadDistance * (0.8 + Math.random() * 0.2); // Vary distance slightly
     const translateX = Math.cos(angle) * distance;
     const translateY = Math.sin(angle) * distance;
-    const particleSizeClass = Math.random() > 0.7 ? 'w-1 h-1' : 'w-2 h-2'; // Some particles are smaller
-    const randomDuration = duration * (0.8 + Math.random() * 0.4); // Vary duration for each particle
+    
+    // Vary size more for sun burst
+    const particleSizeClass = isSunBurst 
+      ? (Math.random() > 0.6 ? 'w-2 h-2' : 'w-3 h-3') 
+      : (Math.random() > 0.7 ? 'w-1 h-1' : 'w-2 h-2'); 
+    
+    const randomDuration = baseDuration * (0.8 + Math.random() * 0.4); // Vary duration for each particle
 
     return (
       <div
         key={i}
         className={`absolute ${particleSizeClass} rounded-sm`} // squared particles, varied size
         style={{
-          animation: `party-popper-glitter ${randomDuration}s linear infinite ${i * 0.03}s`, // Adjusted delay
+          animation: `party-popper-glitter ${randomDuration}s linear infinite ${animationDelay + i * 0.03}s`, // Adjusted delay
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)', // Center the particle initially
@@ -42,7 +54,7 @@ const PartyPopperGlitter: React.FC<PartyPopperGlitterProps> = ({
 
   return (
     <div 
-      className="absolute w-24 h-24 pointer-events-none overflow-hidden" 
+      className={`absolute ${isSunBurst ? 'w-32 h-32' : 'w-24 h-24'} pointer-events-none overflow-hidden`} 
       style={{ top: '50%', left: '50%', transform: `translate(${offsetTransformX}px, ${offsetTransformY}px)` }}
     >
       {particles}
