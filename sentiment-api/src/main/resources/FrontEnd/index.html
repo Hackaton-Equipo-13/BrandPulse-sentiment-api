@@ -56,16 +56,20 @@
 
       @keyframes party-popper-glitter {
         0% {
-          transform: translate(-50%, -50%) scale(0.8); /* Start slightly smaller */
-          opacity: 0.8;
+          transform: translate(-50%, -50%) scale(0); /* Start very small, almost invisible */
+          opacity: 0.2; /* More transparent from the start */
         }
-        50% {
-          transform: translate(calc(-50% + var(--translate-x)), calc(-50% + var(--translate-y))) scale(1.2); /* Grow and move out */
+        5% { /* Quick burst of light/appearance */
+          transform: translate(-50%, -50%) scale(1.2); /* Slightly larger initial burst */
           opacity: 1;
         }
-        100% {
-          transform: translate(-50%, -50%) scale(0.8); /* Shrink and return to center */
-          opacity: 0.8;
+        70% { /* Expand outwards */
+          transform: translate(calc(-50% + var(--translate-x) * 0.8), calc(-50% + var(--translate-y) * 0.8)) scale(0.8); /* Scale down slightly as it moves */
+          opacity: 0.7; /* Slightly more transparent as it moves out */
+        }
+        100% { /* Fade out completely at the end of its radial movement */
+          transform: translate(calc(-50% + var(--translate-x) * 1.5), calc(-50% + var(--translate-y) * 1.5)) scale(0); /* Move further out and disappear */
+          opacity: 0;
         }
       }
       

@@ -11,6 +11,7 @@ public class SentimentLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 2000) // Increased length for text column
     private String text;
     private String prevision;
     private double probabilidad;

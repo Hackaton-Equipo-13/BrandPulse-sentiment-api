@@ -88,6 +88,13 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 50;
 
+  // States for file processing control
+  const [processingFile, setProcessingFile] = useState(false);
+  const [processingProgress, setProcessingProgress] = useState(0);
+  const [totalItemsInFile, setTotalItemsInFile] = useState(0);
+  const [currentlyAnalyzingText, setCurrentlyAnalyzingText] = useState('');
+  const cancelProcessingRef = React.useRef(false);
+
   useEffect(() => {
     getSentimentHistory().then(setHistory).catch(() => setHistory([]));
   }, [result]);
@@ -137,28 +144,52 @@ const App: React.FC = () => {
 
   const handleFile = async (file: File | null) => {
     if (!file) return;
+
+    setUploadedFileName(file.name);
+    setIsAnalyzing(true); // General analyzing state
+    setProcessingFile(true); // Specific file processing state
+    setProcessingProgress(0);
+    cancelProcessingRef.current = false; // Reset cancel flag
+
     try {
-      setUploadedFileName(file.name);
-      setIsAnalyzing(true);
       const texts = await extractTextsFromFile(file);
       if (!texts.length) {
         setInputText('');
         setIsAnalyzing(false);
+        setProcessingFile(false);
         return;
       }
-      setInputText(texts.join('\n')); 
-      for (const text of texts) {
+      setInputText(texts.join('\n')); // Still show all texts in textarea
+      setTotalItemsInFile(texts.length);
+
+      for (let i = 0; i < texts.length; i++) {
+        if (cancelProcessingRef.current) {
+          console.log('File processing cancelled.');
+          break;
+        }
+
+        const text = texts[i];
+        setProcessingProgress(i + 1);
+        setCurrentlyAnalyzingText(text); // Display current text being analyzed
+        
         try {
+          // Introduce a small delay to allow UI updates and cancellation to be responsive
+          await new Promise(resolve => setTimeout(resolve, 50)); 
           const data = await analyzeSentiment(text);
-          setResult(data);
+          setResult(data); // Update result with the latest analysis
         } catch (error) {
-          console.error(error);
+          console.error(`Error analyzing text ${i + 1}:`, error);
         }
       }
-      setIsAnalyzing(false);
     } catch (e) {
+      console.error('Error during file processing:', e);
+    } finally {
       setIsAnalyzing(false);
-      console.error(e);
+      setProcessingFile(false);
+      setCurrentlyAnalyzingText('');
+      setProcessingProgress(0);
+      setTotalItemsInFile(0);
+      cancelProcessingRef.current = false; // Ensure flag is reset
     }
   };
 
@@ -263,77 +294,97 @@ const App: React.FC = () => {
               </div>
               
               <div className="relative mb-6">
-                <input
-                  type="text"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  placeholder="https://ejemplo.com/reviews"
-                  className={`w-full p-4 border-4 outline-none font-pixel text-[12px] leading-relaxed rounded-2xl ${ 
-                    isNeon ? 'bg-black border-pink-500/30 text-pink-50 neon-animated-border' : 
-                    isLight ? 'bg-slate-50 border-slate-900 text-slate-900' : 
-                    'bg-white dark:bg-slate-900 border-current'
-                  }`}
-                />
-                <button
-                  onClick={handleUrlAnalyze}
-                  disabled={isAnalyzing || !urlInput.trim()}
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 transition-all rounded-lg ${ 
-                    isAnalyzing ? 'opacity-50 cursor-not-allowed' : 'hover:scale-125 active:scale-100'
-                  }`}
-                >
-                  <Link size={20} />
-                </button>
-              </div>
-
-              <div className={`my-8 p-4 border-2 rounded-lg ${isNeon ? 'border-cyan-400/20' : 'border-slate-400/20'}`}>
-                <h3 className={`text-[10px] font-pixel mb-4 flex items-center gap-2 ${isNeon ? 'text-cyan-400' : ''}`}>
-                  <Layers size={14} /> {t.dataTypes}
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {dataTypes.map(type => (
-                    <div key={type.name} className="flex items-center gap-2 p-2 bg-black/20 rounded-lg">
-                      <type.icon size={16} className={`opacity-60 ${isNeon ? 'text-cyan-300': ''}`} />
-                      <span className="font-pixel text-[10px] opacity-80">{type.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div 
-                className={`relative group p-4 border-4 rounded-2xl transition-all flex flex-col ${isNeon ? 'bg-black border-pink-500/30 neon-animated-border' : isLight ? 'bg-slate-50 border-slate-900' : 'bg-slate-900 border-current'}`} 
-                onDrop={handleDrop} 
-                onDragOver={(e) => e.preventDefault()}
-                onClick={() => document.getElementById('fileInput')?.click()} // Trigger hidden file input
-              >
-                <textarea
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Escribe o arrastra un archivo (.json, .csv, o .xlsx) aquí..."
-                  className="w-full flex-1 h-32 p-2 bg-transparent resize-none outline-none font-pixel text-[12px] leading-relaxed rounded-lg"
-                />
-                <input
-                    id="fileInput"
-                    type="file"
-                    accept=".json,.csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,application/csv"
-                    onChange={(e) => handleFile(e.target.files ? e.target.files[0] : null)}
-                    className="hidden"
-                  />
-                <button
-                  onClick={handleGeneralAnalyze}
-                  disabled={isAnalyzing || (!inputText.trim() && !urlInput.trim())}
-                  className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] rounded-lg ${
-                    isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff] neon-animated-border' :
-                    isLight ? 'bg-slate-900 text-white hover:bg-slate-800' :
-                    'bg-current text-slate-900 hover:bg-slate-300'
-                  } ${ (isAnalyzing || (!inputText.trim() && !urlInput.trim())) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-100' }`}
-                >
-                  {isAnalyzing ? t.waiting : (<>{t.execute} <Send size={20} /></>)}
-                </button>
-                {uploadedFileName && (
-                  <div className="mt-2 text-xs text-cyan-400 font-pixel truncate">Archivo cargado: {uploadedFileName}</div>
-                )}
-              </div>
-            </div>
+                                <input
+                                  type="text"
+                                  value={urlInput}
+                                  onChange={(e) => setUrlInput(e.target.value)}
+                                  placeholder="https://ejemplo.com/reviews"
+                                  disabled={processingFile || isAnalyzing} // Disable when processing file or general analyzing
+                                  className={`w-full p-4 border-4 outline-none font-pixel text-[12px] leading-relaxed rounded-2xl ${
+                                    isNeon ? 'bg-black border-pink-500/30 text-pink-50 neon-animated-border' :
+                                    isLight ? 'bg-slate-50 border-slate-900 text-slate-900' :
+                                    'bg-white dark:bg-slate-900 border-current'
+                                  }`}
+                                />
+                                <button
+                                  onClick={handleUrlAnalyze}
+                                  disabled={isAnalyzing || !urlInput.trim() || processingFile} // Disable when processing file
+                                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 transition-all rounded-lg ${
+                                    (isAnalyzing || processingFile) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-125 active:scale-100'
+                                  }`}
+                                >
+                                  <Link size={20} />
+                                </button>
+                              </div>
+                
+                              <div className={`my-8 p-4 border-2 rounded-lg ${isNeon ? 'border-cyan-400/20' : 'border-slate-400/20'}`}>
+                                <h3 className={`text-[10px] font-pixel mb-4 flex items-center gap-2 ${isNeon ? 'text-cyan-400' : ''}`}>
+                                  <Layers size={14} /> {t.dataTypes}
+                                </h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                  {dataTypes.map(type => (
+                                    <div key={type.name} className="flex items-center gap-2 p-2 bg-black/20 rounded-lg">
+                                      <type.icon size={16} className={`opacity-60 ${isNeon ? 'text-cyan-300': ''}`} />
+                                      <span className="font-pixel text-[10px] opacity-80">{type.name}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                
+                              <div
+                                className={`relative group p-4 border-4 rounded-2xl transition-all flex flex-col ${isNeon ? 'bg-black border-pink-500/30 neon-animated-border' : isLight ? 'bg-slate-50 border-slate-900' : 'bg-slate-900 border-current'}`}
+                                onDrop={handleDrop}
+                                onDragOver={(e) => e.preventDefault()}
+                                onClick={() => document.getElementById('fileInput')?.click()} // Trigger hidden file input
+                              >
+                                <textarea
+                                  value={inputText}
+                                  onChange={(e) => setInputText(e.target.value)}
+                                  placeholder="Escribe o arrastra un archivo (.json, .csv, o .xlsx) aquí..."
+                                  disabled={processingFile} // Disable when processing file
+                                  className="w-full flex-1 h-32 p-2 bg-transparent resize-none outline-none font-pixel text-[12px] leading-relaxed rounded-lg"
+                                />
+                                <input
+                                    id="fileInput"
+                                    type="file"
+                                    accept=".json,.csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,application/csv"
+                                    onChange={(e) => handleFile(e.target.files ? e.target.files[0] : null)}
+                                    className="hidden"
+                                  />
+                                <button
+                                  onClick={handleGeneralAnalyze}
+                                  disabled={isAnalyzing || (!inputText.trim() && !urlInput.trim()) || processingFile} // Disable when processing file
+                                  className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] rounded-lg ${
+                                    isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff] neon-animated-border' :
+                                    isLight ? 'bg-slate-900 text-white hover:bg-slate-800' :
+                                    'bg-current text-slate-900 hover:bg-slate-300'
+                                  } ${ (isAnalyzing || (!inputText.trim() && !urlInput.trim()) || processingFile) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-100' }`}
+                                >
+                                  {isAnalyzing ? (processingFile ? `${t.waiting} (${processingProgress}/${totalItemsInFile})` : t.waiting) : (<>{t.execute} <Send size={20} /></>)}
+                                </button>
+                
+                                {processingFile && (
+                                  <div className="mt-4 text-center">
+                                    <p className="font-pixel text-xs">
+                                      Procesando: {processingProgress} / {totalItemsInFile}
+                                    </p>
+                                    <p className="font-mono text-[10px] opacity-70 truncate" title={currentlyAnalyzingText}>
+                                      "{currentlyAnalyzingText}"
+                                    </p>
+                                    <button
+                                      onClick={() => { cancelProcessingRef.current = true; }}
+                                      className={`mt-2 px-4 py-2 font-pixel text-xs rounded-lg shadow transition-transform hover:scale-105 ${
+                                        isLight ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-red-700 text-white hover:bg-red-600'
+                                      }`}
+                                    >
+                                      Cancelar
+                                    </button>
+                                  </div>
+                                )}
+                                {uploadedFileName && !processingFile && (
+                                  <div className="mt-2 text-xs text-cyan-400 font-pixel truncate">Archivo cargado: {uploadedFileName}</div>
+                                )}
+                              </div>            </div>
           </div>
 
           {/* Columna derecha */}
