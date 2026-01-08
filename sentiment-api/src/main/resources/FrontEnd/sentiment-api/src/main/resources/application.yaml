@@ -1,7 +1,0 @@
-spring:
-  application:
-    name: sentiment-api
-onnx:
-  model:
-    path: model/sentiment_pipeline.onnx
-  simulation: true
