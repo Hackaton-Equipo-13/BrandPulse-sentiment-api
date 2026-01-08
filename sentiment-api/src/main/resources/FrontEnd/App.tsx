@@ -1,4 +1,11 @@
 
+import React, { useState, Suspense, lazy } from 'react';
+import * as XLSX from 'xlsx';
+import { extractTextsFromFile } from './extractTextsFromFile';
+import { ThemeMode, SentimentType, SentimentResult, ConnectionConfig, Language } from './types';
+import { EmojiAtom } from './components/EmojiAtom';
+import { SentimentDisplay } from './components/SentimentDisplay';
+const AnalyticsCharts = lazy(() => import('./components/AnalyticsCharts').then(module => ({ default: module.AnalyticsCharts })));
 import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory, SentimentLog } from './services/sentimentService';
 import { 
   Sun, Moon, Zap, 
