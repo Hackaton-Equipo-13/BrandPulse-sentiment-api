@@ -106,6 +106,15 @@ const App: React.FC = () => {
   );
   const t = translations[lang];
 
+  const handleClearHistory = () => {
+    setHistory([]);
+    setInputText('');
+    setUrlInput('');
+    setUploadedFileName(null);
+    setResult(null);
+    setCurrentPage(1); // Reset pagination
+  };
+
   const handleTextAnalyze = async () => {
     if (!inputText.trim()) return;
     setIsAnalyzing(true);
@@ -134,8 +143,10 @@ const App: React.FC = () => {
 
   const handleGeneralAnalyze = () => {
     if (urlInput.trim()) {
+      handleClearHistory(); // Clear history before new analysis
       handleUrlAnalyze();
     } else if (inputText.trim()) {
+      handleClearHistory(); // Clear history before new analysis
       handleTextAnalyze();
     }
   };
@@ -145,6 +156,7 @@ const App: React.FC = () => {
   const handleFile = async (file: File | null) => {
     if (!file) return;
 
+    handleClearHistory(); // Clear existing data before processing new file
     setUploadedFileName(file.name);
     setIsAnalyzing(true); // General analyzing state
     setProcessingFile(true); // Specific file processing state
@@ -419,38 +431,46 @@ const App: React.FC = () => {
         <div className={`w-full bg-white/10 rounded-lg p-4 select-none mt-12 mb-8 max-w-7xl mx-auto ${isLight ? 'bg-white/80' : ''}`}>
           <div className="flex justify-between items-center mb-2">
             <span className="font-doto text-lg">Historial de comentarios clasificados</span>
-            <div className="relative">
+            <div className="flex gap-2"> {/* Added flex container for buttons */}
               <button
-                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-ibm-plex text-xs rounded-lg shadow transition-transform hover:scale-105"
-                onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                onClick={handleClearHistory}
+                className={`px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-ibm-plex text-xs rounded-lg shadow transition-transform hover:scale-105`}
               >
-                Descargar historial
+                Limpiar Historial
               </button>
-              {showDownloadMenu && (
-                <div className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg z-20 ${isLight ? 'bg-white' : 'bg-slate-800'}`}>
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); downloadHistory('xlsx', history); setShowDownloadMenu(false); }}
-                    className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
-                  >
-                    Descargar como XLSX
-                  </a>
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); downloadHistory('csv', history); setShowDownloadMenu(false); }}
-                    className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
-                  >
-                    Descargar como CSV
-                  </a>
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); downloadHistory('json', history); setShowDownloadMenu(false); }}
-                    className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
-                  >
-                    Descargar como JSON
-                  </a>
-                </div>
-              )}
+              <div className="relative">
+                <button
+                  className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-ibm-plex text-xs rounded-lg shadow transition-transform hover:scale-105"
+                  onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                >
+                  Descargar historial
+                </button>
+                {showDownloadMenu && (
+                  <div className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg z-20 ${isLight ? 'bg-white' : 'bg-slate-800'}`}>
+                    <a
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); downloadHistory('xlsx', history); setShowDownloadMenu(false); }}
+                      className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
+                    >
+                      Descargar como XLSX
+                    </a>
+                    <a
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); downloadHistory('csv', history); setShowDownloadMenu(false); }}
+                      className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
+                    >
+                      Descargar como CSV
+                    </a>
+                    <a
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); downloadHistory('json', history); setShowDownloadMenu(false); }}
+                      className={`block px-4 py-2 text-sm font-ibm-plex ${isLight ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-slate-700'}`}
+                    >
+                      Descargar como JSON
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="w-full mt-4 overflow-x-auto">
