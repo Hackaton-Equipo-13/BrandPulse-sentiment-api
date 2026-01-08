@@ -130,6 +130,16 @@ export const SentimentDisplay: React.FC<SentimentDisplayProps> = ({ result, them
                 duration={3.5} 
                 isSunBurst={true} 
               />
+
+              {/* New 'x' and '+' bursts */}
+              <PartyPopperGlitter 
+                offsetTransformX={150} offsetTransformY={50} animationDelay={0.7} duration={1.8} 
+                containerWidth={64} containerHeight={64} // w-16 h-16
+              />
+              <PartyPopperGlitter 
+                offsetTransformX={-150} offsetTransformY={-100} animationDelay={1.5} duration={2.2} 
+                containerWidth={64} containerHeight={64} // w-16 h-16
+              />
             </>
           )}
           <span className={`text-[10px] uppercase font-pixel tracking-[0.3em] mt-8 p-1 px-3 border-2 ${

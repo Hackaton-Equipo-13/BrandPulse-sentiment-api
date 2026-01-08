@@ -7,6 +7,8 @@ interface PartyPopperGlitterProps {
   offsetTransformY?: number; // Base offset for the whole glitter container
   animationDelay?: number; // Delay before the whole component's animation starts (in seconds)
   isSunBurst?: boolean; // If true, create a larger, sun-shaped burst effect
+  containerWidth?: number; // Custom width for the glitter container
+  containerHeight?: number; // Custom height for the glitter container
 }
 
 const PartyPopperGlitter: React.FC<PartyPopperGlitterProps> = ({ 
@@ -14,7 +16,9 @@ const PartyPopperGlitter: React.FC<PartyPopperGlitterProps> = ({
   offsetTransformX = 100, 
   offsetTransformY = -50,
   animationDelay = 0,
-  isSunBurst = false
+  isSunBurst = false,
+  containerWidth,
+  containerHeight
 }) => {
   const colors = ['#10b981', '#34d399', '#fbbf24', '#fef3c7', '#d1fae5'];
   
@@ -52,10 +56,19 @@ const PartyPopperGlitter: React.FC<PartyPopperGlitterProps> = ({
     );
   });
 
+  const finalContainerWidth = containerWidth || (isSunBurst ? 128 : 96); // 128px for w-32, 96px for w-24
+  const finalContainerHeight = containerHeight || (isSunBurst ? 128 : 96);
+
   return (
     <div 
-      className={`absolute ${isSunBurst ? 'w-32 h-32' : 'w-24 h-24'} pointer-events-none overflow-hidden`} 
-      style={{ top: '50%', left: '50%', transform: `translate(${offsetTransformX}px, ${offsetTransformY}px)` }}
+      className="absolute pointer-events-none overflow-hidden" 
+      style={{ 
+        top: '50%', 
+        left: '50%', 
+        width: `${finalContainerWidth}px`, 
+        height: `${finalContainerHeight}px`,
+        transform: `translate(${offsetTransformX}px, ${offsetTransformY}px)` 
+      }}
     >
       {particles}
     </div>
