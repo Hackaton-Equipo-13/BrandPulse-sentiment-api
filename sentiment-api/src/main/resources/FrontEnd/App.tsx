@@ -336,9 +336,6 @@ const App: React.FC = () => {
                   result={result}
                   theme={theme}
                 />
-                <Suspense fallback={<div className="w-full h-96 flex items-center justify-center font-pixel opacity-50">LOADING_ANALYTICS...</div>}>
-                  <AnalyticsCharts data={result} theme={theme} />
-                </Suspense>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[600px] text-center opacity-30">
@@ -349,6 +346,15 @@ const App: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Analytics Charts Section - Full Width */}
+        {result && (
+          <div className="mt-16 w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <Suspense fallback={<div className="w-full h-96 flex items-center justify-center font-pixel opacity-50">LOADING_ANALYTICS...</div>}>
+              <AnalyticsCharts data={result} theme={theme} />
+            </Suspense>
+          </div>
+        )}
         
         {/* Historial de comentarios */}
         <div className={`w-full bg-white/10 rounded-lg p-4 select-none mt-12 mb-8 max-w-7xl mx-auto ${isLight ? 'bg-white/80' : ''}`}>

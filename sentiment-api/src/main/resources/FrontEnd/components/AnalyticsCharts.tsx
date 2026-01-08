@@ -33,14 +33,14 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
   const isNeon = theme === ThemeMode.NEON;
   
   const chartData = [
-    { name: 'Positivo', value: data.breakdown.positive, color: isNeon ? '#00ffff' : '#10b981' },
-    { name: 'Neutro', value: data.breakdown.neutral, color: isNeon ? '#f59e0b' : '#f59e0b' },
-    { name: 'Negativo', value: data.breakdown.negative, color: isNeon ? '#ff00ff' : '#f43f5e' },
+    { name: 'Positivo', value: data.breakdown.positive, color: isNeon ? '#00ffff' : '#10b981', gradientId: 'gradientPositive' },
+    { name: 'Neutro', value: data.breakdown.neutral, color: isNeon ? '#f59e0b' : '#f59e0b', gradientId: 'gradientNeutral' },
+    { name: 'Negativo', value: data.breakdown.negative, color: isNeon ? '#ff00ff' : '#f43f5e', gradientId: 'gradientNegative' },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full mt-16">
-      {/* Distribution Matrix */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 w-full mt-16">
+      {/* Distribution Matrix (Pie Chart) */}
       <div className={`p-10 border-4 transition-all hover:translate-y-[-8px] group rounded-lg ${
         isNeon ? 'neon-border-pink bg-black shadow-[10px_10px_0px_#ff00ff]' : 'border-current bg-white/5 shadow-[12px_12px_0px_currentColor]'
       }`}>
@@ -81,7 +81,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
         </div>
       </div>
 
-      {/* Precision Stats */}
+      {/* Precision Stats (Horizontal Bars) */}
       <div className={`p-10 border-4 transition-all hover:translate-y-[-8px] group rounded-lg ${
         isNeon ? 'neon-border-cyan bg-black shadow-[10px_10px_0px_#00ffff]' : 'border-current bg-white/5 shadow-[12px_12px_0px_currentColor]'
       }`}>
@@ -102,6 +102,67 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, theme })
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Grafico de Barras Verticales */}
+      <div className={`p-10 border-4 transition-all hover:translate-y-[-8px] group rounded-lg ${
+        isNeon ? 'neon-border-cyan bg-black shadow-[10px_10px_0px_#00ffff]' : 'border-current bg-white/5 shadow-[12px_12px_0px_currentColor]'
+      }`}>
+        <h3 className="text-[11px] font-pixel uppercase mb-10 opacity-70 tracking-tighter flex items-center gap-2">
+          <div className="w-2 h-2 bg-current animate-pulse"/> _precision_matrix
+        </h3>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 20 }}>
+              <defs>
+                <linearGradient id="gradientPositive" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={isNeon ? '#00ffff' : '#10b981'} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={isNeon ? '#00ffff' : '#10b981'} stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="gradientNeutral" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={isNeon ? '#f59e0b' : '#f59e0b'} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={isNeon ? '#f59e0b' : '#f59e0b'} stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="gradientNegative" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={isNeon ? '#ff00ff' : '#f43f5e'} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={isNeon ? '#ff00ff' : '#f43f5e'} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <XAxis 
+                dataKey="name" 
+                tick={{ fill: 'currentColor', fontSize: 9, fontFamily: 'Silkscreen' }} 
+                axisLine={{ stroke: 'currentColor', strokeWidth: 3 }} 
+                tickLine={false} 
+              />
+              <YAxis 
+                tickFormatter={(value: number) => `${value}%`}
+                tick={{ fill: 'currentColor', fontSize: 9, fontFamily: 'Silkscreen' }}
+                axisLine={{ stroke: 'currentColor', strokeWidth: 3 }}
+                label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft', fill: 'currentColor', fontSize: 11, fontFamily: 'Silkscreen' }}
+              />
+              <Tooltip 
+                content={<CustomTooltip isNeon={isNeon} />}
+                cursor={{ fill: 'rgba(255,255,255,0.08)' }}
+              />
+              <Bar dataKey="value" animationDuration={800}>
+                {chartData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={`url(#${entry.gradientId})`}
+                    className="hover:brightness-125 transition-all cursor-pointer"
+                  />
+                ))}
+                <LabelList 
+                  dataKey="value" 
+                  position="top" 
+                  fill="currentColor" 
+                  formatter={(v: number) => `${v}%`} 
+                  className="text-[10px] font-pixel" 
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
