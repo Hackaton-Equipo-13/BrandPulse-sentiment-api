@@ -4,4 +4,4 @@ spring:
 onnx:
   model:
     path: model/sentiment_pipeline.onnx
-  simulation: true
+  simulation: false

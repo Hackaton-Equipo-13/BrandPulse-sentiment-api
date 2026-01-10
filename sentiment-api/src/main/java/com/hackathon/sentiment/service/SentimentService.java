@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.hackathon.sentiment.entity.SentimentLog;
 import com.hackathon.sentiment.repository.SentimentLogRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.nio.file.Files;
@@ -20,15 +23,18 @@ import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects; // Import Objects for null check
+import java.util.Arrays; // Re-import Arrays for logging float[]
 
 import ai.onnxruntime.OrtException;
 
 @Service
 public class SentimentService {
+    private static final Logger logger = LoggerFactory.getLogger(SentimentService.class);
+
     private final OnnxModelHandler onnxModelHandler;
     private final SentimentLogRepository sentimentLogRepository;
 
-    @Autowired
     public SentimentService(OnnxModelHandler onnxModelHandler, SentimentLogRepository sentimentLogRepository) {
         this.onnxModelHandler = onnxModelHandler;
         this.sentimentLogRepository = sentimentLogRepository;
@@ -38,6 +44,7 @@ public class SentimentService {
         String sentiment = "NEUTRAL";
         double probability = 0.5; // Probabilidad neutral por defecto
         String text = request.getText();
+        logger.info("Received sentiment analysis request for text: {}", text);
 
         // Handle uploaded base64 files with the prefix format:
         // __BASE64_FILE__<filename>\n<base64data>
@@ -67,17 +74,37 @@ public class SentimentService {
             }
         }
 
+        float[] allProbabilities = new float[0];
         try {
-            float[] output = onnxModelHandler.predict(text);
-            if (output != null && output.length > 0) {
-                probability = output[0];
-                // Rango neutro más pequeño para mayor precisión
-                if (probability > 0.55) {
-                    sentiment = "POSITIVE";
-                } else if (probability < 0.45) {
-                    sentiment = "NEGATIVE";
-                } else {
-                    sentiment = "NEUTRAL";
+            // Ensure text is not null before passing to ONNX model
+            if (text == null) {
+                text = ""; // Fallback to empty string if null
+            }
+            float[][] output = onnxModelHandler.predict(text);
+            if (output != null && output.length > 0 && output[0].length == 3) { // Ensure we have 3 probabilities
+                allProbabilities = output[0]; // Store all probabilities
+                float[] probabilities = output[0];
+                int maxIndex = 0;
+                for (int i = 1; i < probabilities.length; i++) {
+                    if (probabilities[i] > probabilities[maxIndex]) {
+                        maxIndex = i;
+                    }
+                }
+
+                probability = probabilities[maxIndex];
+                switch (maxIndex) {
+                    case 0:
+                        sentiment = "NEGATIVE";
+                        break;
+                    case 1:
+                        sentiment = "NEUTRAL";
+                        break;
+                    case 2:
+                        sentiment = "POSITIVE";
+                        break;
+                    default:
+                        sentiment = "NEUTRAL";
+                        break;
                 }
             }
         } catch (OrtException e) {
@@ -87,26 +114,47 @@ public class SentimentService {
 
         int score = (int) Math.round(probability * 100);
 
-        // Create a simplified breakdown
+        // Create a simplified breakdown using all probabilities
         Breakdown breakdown;
-        if ("POSITIVE".equals(sentiment)) {
-            breakdown = new Breakdown(probability, 1.0 - probability, 0);
-        } else if ("NEGATIVE".equals(sentiment)) {
-            breakdown = new Breakdown(0, 1.0 - probability, probability);
+        if (allProbabilities.length == 3) {
+            logger.info("Raw probabilities from ONNX model: {}", Arrays.toString(allProbabilities));
+            // Assuming order: NEGATIVE, NEUTRAL, POSITIVE
+            breakdown = new Breakdown(
+                allProbabilities[2], // Positive
+                allProbabilities[1], // Neutral
+                allProbabilities[0]  // Negative
+            );
         } else {
-            breakdown = new Breakdown(0, 1.0, 0);
+            // Fallback if probabilities are not as expected
+            if ("POSITIVE".equals(sentiment)) {
+                breakdown = new Breakdown(probability, 1.0 - probability, 0);
+            } else if ("NEGATIVE".equals(sentiment)) {
+                breakdown = new Breakdown(0, 1.0 - probability, probability);
+            } else {
+                breakdown = new Breakdown(0, 1.0, 0);
+            }
         }
         
         // Placeholder snippets - using full text for now
-        String snippet = text.substring(0, Math.min(text.length(), 120));
+        String snippet = (text != null) ? text.substring(0, Math.min(text.length(), 120)) : "";
 
         // Save the log to the database
         SentimentLog log = new SentimentLog();
-        log.setText(text);
+        log.setText(Objects.requireNonNullElse(text, ""));
         log.setPrevision(sentiment);
         log.setProbabilidad(probability);
         log.setFecha(LocalDateTime.now());
         sentimentLogRepository.save(log);
+
+        logger.info("Sentiment Analysis Result for text: '{}'", text);
+        logger.info("  -> Predicted Sentiment: {}", sentiment);
+        logger.info("  -> Score: {}", score);
+        if (breakdown != null) {
+            logger.info("  -> Breakdown: Positive={}, Neutral={}, Negative={}",
+                    String.format("%.4f", breakdown.getPositive()),
+                    String.format("%.4f", breakdown.getNeutral()),
+                    String.format("%.4f", breakdown.getNegative()));
+        }
 
         return new SentimentResponse(sentiment, score, snippet, snippet, snippet, breakdown);
     }
