@@ -111,58 +111,9 @@ public class SentimentService {
         Breakdown breakdown;
         if (allProbabilities.length == 2) {
             // Assuming order [Negative, Positive] from the model output
-            // Need to infer Neutral probability
-            double positiveBreakdown = 0;
-            double negativeBreakdown = 0;
-            double neutralBreakdown = 0;
-
-            if ("POSITIVE".equals(sentiment)) {
-                positiveBreakdown = probability;
-                neutralBreakdown = 1.0 - probability; // Remaining for neutral
-            } else if ("NEGATIVE".equals(sentiment)) {
-                negativeBreakdown = probability;
-                neutralBreakdown = 1.0 - probability; // Remaining for neutral
-            } else { // NEUTRAL
-                neutralBreakdown = Math.max(allProbabilities[0], allProbabilities[1]); // Higher prob if neutral
-                positiveBreakdown = allProbabilities[1] < neutralBreakdown ? allProbabilities[1] : 0;
-                negativeBreakdown = allProbabilities[0] < neutralBreakdown ? allProbabilities[0] : 0;
-            }
-            // A more direct way:
             double probNeg = allProbabilities[0];
             double probPos = allProbabilities[1];
-            double probNeu = 0.0; // Default to 0, if explicit neutral isn't given
-
-            if ("NEUTRAL".equals(sentiment)) {
-                // If it's classified as neutral, distribute the "remaining" probability to neutral.
-                // This is a simplification; a more complex model might handle this better.
-                probNeu = 1.0 - probNeg - probPos;
-                if (probNeu < 0) probNeu = 0; // Should not happen if probabilities sum to <= 1
-                probNeg = probNeg / (probNeg + probPos) * (1.0 - probNeu);
-                probPos = probPos / (probNeg + probPos) * (1.0 - probNeu);
-
-                // Re-normalize if probNeg + probPos + probNeu > 1
-                double sum = probNeg + probPos + probNeu;
-                if (sum > 0) {
-                    probNeg /= sum;
-                    probPos /= sum;
-                    probNeu /= sum;
-                }
-            } else {
-                // If not neutral, assume the model's given probabilities are for neg/pos directly,
-                // and any "neutral" is 0 or implicit.
-                // Since the model only provides 2, we use them directly.
-                // If we want a 'neutral' probability from a binary model, we need a more sophisticated method.
-                // For simplicity here, if not neutral, treat the given probabilities as direct.
-                // The breakdown assumes a 3-way split, so we'll adjust the 'neutral' part based on the classification.
-                 if (probNeg + probPos > 1.0) { // If probabilities from binary model sum > 1, normalize
-                    double sum = probNeg + probPos;
-                    probNeg /= sum;
-                    probPos /= sum;
-                }
-                 probNeu = 1.0 - probNeg - probPos;
-                 if (probNeu < 0) probNeu = 0;
-            }
-             breakdown = new Breakdown(probPos, probNeu, probNeg);
+             breakdown = new Breakdown(probPos, 0.0, probNeg);
 
 
         } else if (allProbabilities.length == 3) { // Fallback for 3 probabilities if somehow present

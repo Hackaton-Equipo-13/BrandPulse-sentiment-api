@@ -26,7 +26,7 @@ public class OnnxModelHandler {
     private OrtEnvironment env;
     private OrtSession session;
 
-    @Value("${onnx.model.path:model/sentiment_pipeline.onnx}")
+    @Value("${onnx.model.path:model/BrandPulse.onnx}")
     private String modelPath;
 
     @Value("${onnx.simulation:false}")
@@ -43,7 +43,7 @@ public class OnnxModelHandler {
             env = OrtEnvironment.getEnvironment();
             InputStream modelStream = getClass().getClassLoader().getResourceAsStream(modelPath);
             if (modelStream == null) {
-                throw new RuntimeException("No se pudo encontrar el modelo ONNX en la ruta del classpath: " + modelPath);
+                throw new RuntimeException("❌ No se pudo encontrar el modelo ONNX en la ruta del classpath: " + modelPath);
             }
 
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
