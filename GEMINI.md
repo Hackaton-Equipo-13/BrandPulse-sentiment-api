@@ -1,14 +1,5 @@
 
 
-1- Puedes ayudarme a implementar Swagger ( añadir las dependencias necesarias como: springdoc-openapi-starter-webmvc-ui ) para documentar mi proyecto, y finalmente crea un archivo readme.md con todas las indicaciones necesarias como por ejemplo como acceder a la UI de swagger, para probar los endpoints etc y ayudar al equipo de desarrollo que utilice la app a diseñar, crear, documentar y consumir servicios web RESTful. 
-
-
-2- Puedes hacer ./mvnw clean install en "sentiment-api" si es necesario para probar y actualuzar el Build en springboot.
-
-3. La app está perfecta de momento no cambies las  versiones de springboot 4.0.1 en el pom.xml ni hagas cambios que no te de permiso. 
-
-
-
 Características del modelo BrandPulse.onnx:
 
 # Modelo_BrandPulse
