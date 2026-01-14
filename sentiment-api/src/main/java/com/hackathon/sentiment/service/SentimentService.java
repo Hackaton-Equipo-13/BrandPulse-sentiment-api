@@ -23,8 +23,8 @@ import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects; // Import Objects for null check
-import java.util.Arrays; // Re-import Arrays for logging float[]
+import java.util.Objects;
+import java.util.Arrays;
 
 import ai.onnxruntime.OrtException;
 
@@ -35,6 +35,8 @@ public class SentimentService {
     private final OnnxModelHandler onnxModelHandler;
     private final SentimentLogRepository sentimentLogRepository;
 
+    private static final double NEUTRAL_THRESHOLD = 0.2; // Define a threshold for neutrality
+
     public SentimentService(OnnxModelHandler onnxModelHandler, SentimentLogRepository sentimentLogRepository) {
         this.onnxModelHandler = onnxModelHandler;
         this.sentimentLogRepository = sentimentLogRepository;
@@ -42,7 +44,7 @@ public class SentimentService {
 
     public SentimentResponse predict(SentimentRequest request) {
         String sentiment = "NEUTRAL";
-        double probability = 0.5; // Probabilidad neutral por defecto
+        double probability = 0.5;
         String text = request.getText();
         logger.info("Received sentiment analysis request for text: {}", text);
 
@@ -68,7 +70,6 @@ public class SentimentService {
                     text = String.format("[BINARY_FILE:%s SAVED:%s]", filename, out.toString());
                 }
             } catch (Exception e) {
-                // If anything goes wrong decoding, fall back to an empty placeholder
                 System.err.println("Error decoding uploaded file: " + e.getMessage());
                 text = "";
             }
@@ -76,66 +77,108 @@ public class SentimentService {
 
         float[] allProbabilities = new float[0];
         try {
-            // Ensure text is not null before passing to ONNX model
             if (text == null) {
-                text = ""; // Fallback to empty string if null
+                text = "";
             }
             float[][] output = onnxModelHandler.predict(text);
-            if (output != null && output.length > 0 && output[0].length == 3) { // Ensure we have 3 probabilities
-                allProbabilities = output[0]; // Store all probabilities
-                float[] probabilities = output[0];
-                int maxIndex = 0;
-                for (int i = 1; i < probabilities.length; i++) {
-                    if (probabilities[i] > probabilities[maxIndex]) {
-                        maxIndex = i;
-                    }
-                }
+            if (output != null && output.length > 0 && output[0].length == 2) { // Expect 2 probabilities now
+                allProbabilities = output[0]; // Store all probabilities [Negative, Positive]
+                float negProb = allProbabilities[0];
+                float posProb = allProbabilities[1];
 
-                probability = probabilities[maxIndex];
-                switch (maxIndex) {
-                    case 0:
-                        sentiment = "NEGATIVE";
-                        break;
-                    case 1:
-                        sentiment = "NEUTRAL";
-                        break;
-                    case 2:
-                        sentiment = "POSITIVE";
-                        break;
-                    default:
-                        sentiment = "NEUTRAL";
-                        break;
+                logger.info("Raw probabilities from ONNX model: {}", Arrays.toString(allProbabilities));
+
+                // Determine sentiment based on probabilities
+                if (Math.abs(posProb - negProb) < NEUTRAL_THRESHOLD) {
+                    sentiment = "NEUTRAL";
+                    probability = Math.max(posProb, negProb); // Use higher of two for neutral confidence
+                } else if (posProb > negProb) {
+                    sentiment = "POSITIVE";
+                    probability = posProb;
+                } else {
+                    sentiment = "NEGATIVE";
+                    probability = negProb;
                 }
             }
         } catch (OrtException e) {
-            // Log the error, but we can still return a neutral response
-             System.err.println("Error executing ONNX model: " + e.getMessage());
+            System.err.println("Error executing ONNX model: " + e.getMessage());
+            // If an error occurs, sentiment remains "NEUTRAL" and probability 0.5
         }
 
         int score = (int) Math.round(probability * 100);
 
-        // Create a simplified breakdown using all probabilities
+        // Create breakdown based on the 2 probabilities
         Breakdown breakdown;
-        if (allProbabilities.length == 3) {
-            logger.info("Raw probabilities from ONNX model: {}", Arrays.toString(allProbabilities));
-            // Assuming order: NEGATIVE, NEUTRAL, POSITIVE
+        if (allProbabilities.length == 2) {
+            // Assuming order [Negative, Positive] from the model output
+            // Need to infer Neutral probability
+            double positiveBreakdown = 0;
+            double negativeBreakdown = 0;
+            double neutralBreakdown = 0;
+
+            if ("POSITIVE".equals(sentiment)) {
+                positiveBreakdown = probability;
+                neutralBreakdown = 1.0 - probability; // Remaining for neutral
+            } else if ("NEGATIVE".equals(sentiment)) {
+                negativeBreakdown = probability;
+                neutralBreakdown = 1.0 - probability; // Remaining for neutral
+            } else { // NEUTRAL
+                neutralBreakdown = Math.max(allProbabilities[0], allProbabilities[1]); // Higher prob if neutral
+                positiveBreakdown = allProbabilities[1] < neutralBreakdown ? allProbabilities[1] : 0;
+                negativeBreakdown = allProbabilities[0] < neutralBreakdown ? allProbabilities[0] : 0;
+            }
+            // A more direct way:
+            double probNeg = allProbabilities[0];
+            double probPos = allProbabilities[1];
+            double probNeu = 0.0; // Default to 0, if explicit neutral isn't given
+
+            if ("NEUTRAL".equals(sentiment)) {
+                // If it's classified as neutral, distribute the "remaining" probability to neutral.
+                // This is a simplification; a more complex model might handle this better.
+                probNeu = 1.0 - probNeg - probPos;
+                if (probNeu < 0) probNeu = 0; // Should not happen if probabilities sum to <= 1
+                probNeg = probNeg / (probNeg + probPos) * (1.0 - probNeu);
+                probPos = probPos / (probNeg + probPos) * (1.0 - probNeu);
+
+                // Re-normalize if probNeg + probPos + probNeu > 1
+                double sum = probNeg + probPos + probNeu;
+                if (sum > 0) {
+                    probNeg /= sum;
+                    probPos /= sum;
+                    probNeu /= sum;
+                }
+            } else {
+                // If not neutral, assume the model's given probabilities are for neg/pos directly,
+                // and any "neutral" is 0 or implicit.
+                // Since the model only provides 2, we use them directly.
+                // If we want a 'neutral' probability from a binary model, we need a more sophisticated method.
+                // For simplicity here, if not neutral, treat the given probabilities as direct.
+                // The breakdown assumes a 3-way split, so we'll adjust the 'neutral' part based on the classification.
+                 if (probNeg + probPos > 1.0) { // If probabilities from binary model sum > 1, normalize
+                    double sum = probNeg + probPos;
+                    probNeg /= sum;
+                    probPos /= sum;
+                }
+                 probNeu = 1.0 - probNeg - probPos;
+                 if (probNeu < 0) probNeu = 0;
+            }
+             breakdown = new Breakdown(probPos, probNeu, probNeg);
+
+
+        } else if (allProbabilities.length == 3) { // Fallback for 3 probabilities if somehow present
+            logger.warn("Received 3 probabilities from a model expected to output 2. Using 3-probability logic.");
             breakdown = new Breakdown(
                 allProbabilities[2], // Positive
                 allProbabilities[1], // Neutral
                 allProbabilities[0]  // Negative
             );
-        } else {
-            // Fallback if probabilities are not as expected
-            if ("POSITIVE".equals(sentiment)) {
-                breakdown = new Breakdown(probability, 1.0 - probability, 0);
-            } else if ("NEGATIVE".equals(sentiment)) {
-                breakdown = new Breakdown(0, 1.0 - probability, probability);
-            } else {
-                breakdown = new Breakdown(0, 1.0, 0);
-            }
+        }
+        else {
+            // Fallback if probabilities are not as expected (e.g., 0 probabilities)
+            // Assign 1.0 to neutral if no valid probabilities are present
+            breakdown = new Breakdown(0, 1.0, 0);
         }
         
-        // Placeholder snippets - using full text for now
         String snippet = (text != null) ? text.substring(0, Math.min(text.length(), 120)) : "";
 
         // Save the log to the database
@@ -168,9 +211,8 @@ public class SentimentService {
             return predict(sentimentRequest);
         } catch (IOException e) {
             System.err.println("Error fetching URL: " + e.getMessage());
-            // Consider a more specific error response
             SentimentRequest sentimentRequest = new SentimentRequest();
-            sentimentRequest.setText(""); // Empty text for error case
+            sentimentRequest.setText("");
             return predict(sentimentRequest);
         }
     }
