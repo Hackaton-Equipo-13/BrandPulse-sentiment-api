@@ -1,66 +1,72 @@
-# Sentiment API - Backend
+Claro 🙂 Aquí tienes la traducción al español, manteniendo el formato Markdown original:
 
-## Descripción
-API REST para análisis de sentimiento usando un modelo de Data Science exportado en formato ONNX. Recibe textos, predice el sentimiento y guarda las predicciones en base de datos.
+---
 
-## Ejecución local
+# API de Análisis de Sentimientos
 
-1. Clona el repositorio y coloca el archivo `sentiment_pipeline.onnx` en la carpeta `model/`.
-2. Compila el proyecto:
-   ```bash
-   mvn clean package
-   ```
-3. Ejecuta la aplicación:
-   ```bash
-   java -jar target/sentiment-api-0.0.1-SNAPSHOT.jar
-   ```
+Esta es una aplicación Spring Boot que proporciona una API para el análisis de sentimientos de texto.
 
-## Ejemplo de petición
+## Ejecución de la aplicación
 
-POST `/sentiment`
-```json
-{
-  "text": "El servicio fue excelente y rápido."
-}
-```
-Respuesta:
-```json
-{
-  "prevision": "Positivo",
-  "probabilidad": 0.87,
-  "mensaje": "Predicción ONNX ejecutada"
-}
-```
+Para ejecutar la aplicación, puedes usar el siguiente comando de Maven desde el directorio `sentiment-api`:
 
-## Configuración
-La ruta del modelo ONNX se configura en `src/main/resources/application.yaml`:
-```yaml
-onnx:
-  model:
-    path: model/sentiment_pipeline.onnx
-```
-
-## Persistencia
-Las predicciones se guardan en la base de datos H2 por defecto. Puedes cambiar a PostgreSQL editando `application.yaml`.
-
-## Docker
-Para desplegar en Oracle OCI o local:
 ```bash
-# Construir imagen
-mvn clean package
-# Crear imagen Docker
-docker build -t sentiment-api .
-# Ejecutar contenedor
-docker run -p 8080:8080 sentiment-api
+./mvnw spring-boot:run
 ```
 
-## Dependencias principales
-- Spring Boot
-- ONNX Runtime
-- JPA/H2
+La aplicación se iniciará en el puerto 8080.
 
-## Pruebas
-Incluye pruebas unitarias y de integración en `src/test/java`.
+## Documentación de la API (Swagger UI)
 
-## Contacto
-Equipo Backend Hackathon
+Este proyecto utiliza Swagger para la documentación de la API. Una vez que la aplicación esté en ejecución, puedes acceder a la interfaz de Swagger UI en la siguiente URL:
+
+[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+La interfaz de Swagger UI proporciona una manera amigable de explorar los endpoints de la API, ver los modelos de solicitud y respuesta, y probar los endpoints directamente desde tu navegador.
+
+### Endpoints
+
+Los siguientes endpoints están disponibles:
+
+* **POST /api/sentiment**: Analiza el sentimiento de un texto dado.
+
+  * **Cuerpo de la solicitud**: `SentimentRequest` – Un objeto JSON que contiene el texto a analizar.
+
+    ```json
+    {
+      "text": "Este es un gran producto!"
+    }
+    ```
+  * **Cuerpo de la respuesta**: `SentimentResponse` – Un objeto JSON que contiene el sentimiento (POSITIVE, NEGATIVE o NEUTRAL), una puntuación de confianza y un desglose de probabilidades.
+
+* **POST /api/sentiment/url**: Analiza el sentimiento del contenido de texto de una URL dada.
+
+  * **Cuerpo de la solicitud**: `UrlSentimentRequest` – Un objeto JSON que contiene la URL a analizar.
+
+    ```json
+    {
+      "url": "https://example.com/shops/"
+    }
+    ```
+  * **Cuerpo de la respuesta**: `SentimentResponse` – Igual que el endpoint `/api/sentiment`.
+
+* **GET /api/sentiment/history**: Recupera un historial de todas las solicitudes de análisis de sentimientos.
+
+  * **Cuerpo de la respuesta**: Un arreglo JSON de objetos `SentimentLog`.
+
+* **GET /api/sentiment/stats**: Recupera estadísticas sobre las solicitudes de análisis de sentimientos, como el número total de solicitudes y el porcentaje de sentimientos positivos, negativos y neutrales.
+
+  * **Cuerpo de la respuesta**: `SentimentStatsResponse` – Un objeto JSON que contiene las estadísticas.
+
+## Cómo usar la API con Swagger UI
+
+1. Navega a [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html).
+2. Verás una lista de los endpoints disponibles.
+3. Haz clic en un endpoint para expandirlo y ver los detalles.
+4. Haz clic en el botón **"Try it out"** para habilitar el editor del cuerpo de la solicitud.
+5. Ingresa el cuerpo de la solicitud (si es necesario) y haz clic en el botón **"Execute"**.
+6. La respuesta de la API se mostrará debajo.
+
+---
+
+Si quieres, también puedo ayudarte a hacer una versión más técnica, más sencilla o adaptada para usuarios no desarrolladores.

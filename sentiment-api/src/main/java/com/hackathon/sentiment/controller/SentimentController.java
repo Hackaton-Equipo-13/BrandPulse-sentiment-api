@@ -42,6 +42,7 @@ public class SentimentController {
         return ResponseEntity.ok(response);
     }
 
+    /*
     // Endpoint para procesamiento por lote (CSV)
     @PostMapping(value = "/batch", consumes = "multipart/form-data")
     public ResponseEntity<List<SentimentResponse>> analyzeBatch(@RequestParam("file") MultipartFile file) {
@@ -87,6 +88,7 @@ public class SentimentController {
         }
         return ResponseEntity.ok(results);
     }
+    */
 
     @GetMapping("/history")
     public ResponseEntity<List<com.hackathon.sentiment.entity.SentimentLog>> getHistory() {

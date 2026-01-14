@@ -1,12 +1,12 @@
 
 
-1-Ayudame a implementar el modelo .onnx "BrandPulse.onnx" que se encuentra en la carpeta model del proyecto aquí: /home/mati/Documents/BackEndAngel/FullStack-BrandPulse-main (1)/FullStack-BrandPulse-main/sentiment-api/src/main/resources/model/
-y cambia el modelo "BrandPulse.onnx"  por el antiguo "sentiment_pipeline.onnx"  que se encuentra en la misma carpeta del proyecto, por favor haz todas las adapciones para que funcione como debe con el proyecto de analisis de sentimiento, te dejaré acá abajo las características del modelo nuevo "BrandPulse.onnx".
+1- Puedes ayudarme a implementar Swagger ( añadir las dependencias necesarias como: springdoc-openapi-starter-webmvc-ui ) para documentar mi proyecto, y finalmente crea un archivo readme.md con todas las indicaciones necesarias como por ejemplo como acceder a la UI de swagger, para probar los endpoints etc y ayudar al equipo de desarrollo que utilice la app a diseñar, crear, documentar y consumir servicios web RESTful. 
 
 
 2- Puedes hacer ./mvnw clean install en "sentiment-api" si es necesario para probar y actualuzar el Build en springboot.
 
-3. La app está perfecta de momento no cambies las  versiones de springboot 4.0.1 del pom.xml ni hagas cambios que no te de permiso. 
+3. La app está perfecta de momento no cambies las  versiones de springboot 4.0.1 en el pom.xml ni hagas cambios que no te de permiso. 
+
 
 
 Características del modelo BrandPulse.onnx:
