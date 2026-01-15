@@ -1,4 +1,4 @@
-Claro 🙂 Aquí tienes la traducción al español, manteniendo el formato Markdown original:
+
 
 ---
 
