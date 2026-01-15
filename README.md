@@ -4,8 +4,25 @@
 
 
 
+╔════════════════ BRANDPULSE ════════════════╗
+║        ⚡ Sentiment Analysis Engine ⚡     ║
+║                                            ║
+║        (•‿•)✧     (•_•)✧     (•︵•)✧      ║
+║         POS         NEU         NEG        ║
+║                                            ║
+╚════════════════════════════════════════════╝
+      
 
-<img width="1440" height="834" alt="githubpic2" src="https://github.com/user-attachments/assets/6b562c47-d38b-4fcb-9542-dc0dd1a14d2d" />
+
+
+
+
+
+<img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-31" src="https://github.com/user-attachments/assets/ed372665-0ecd-4634-bc50-6a401eadd2c4" />
+
+
+
+
 
 
 
