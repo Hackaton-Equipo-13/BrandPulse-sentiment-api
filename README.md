@@ -27,7 +27,13 @@
 
 
 
-![Uploading Screenshot from 2026-01-14 18-25-04.png…]()
+
+
+
+
+
+
+<img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-04" src="https://github.com/user-attachments/assets/03e0b0d1-7be9-4815-a514-f6614f13f995" />
 
 
 ---
