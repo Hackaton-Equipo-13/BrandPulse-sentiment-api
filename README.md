@@ -36,6 +36,25 @@
 
 
 
+
+
+<p align="center">
+  <a href="www.youtube.com">
+    <img src="img.youtube.com" alt="Video de BrandPulse" width="600">
+  </a>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
 # 🚀 BrandPulse #
 
 **BrandPulse** es una aplicación *full-stack* de última generación diseñada para analizar y visualizar el sentimiento de textos en tiempo real. Combina la potencia de un backend robusto con una interfaz moderna para transformar datos textuales en información accionable.
