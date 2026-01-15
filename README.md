@@ -14,9 +14,9 @@
   </pre>
 </p>
 
-<p align="center">
-  <img width="800" alt="BrandPulse Dashboard" src="https://github.com/user-attachments/assets/ed372665-0ecd-4634-bc50-6a401eadd2c4" style="border-radius: 10px;">
-</p>
+
+
+<img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-31" src="https://github.com/user-attachments/assets/2f9e6ca0-bce8-49c2-b56e-1385990d589a" />
 
 ---
 
