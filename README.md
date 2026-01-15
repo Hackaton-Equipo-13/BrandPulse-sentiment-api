@@ -1,46 +1,35 @@
 # FullStack-BrandPulse
 
+<p align="center">
+  <pre align="center">
+╭──────────────────────────────────────────────────────────╮
+│                      <b>BRANDPULSE</b>                          │
+│           <i>Sentimental Analysis Engine v1.0</i>               │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│     (•‿•) ✨             (•_•) 🌀             (•︵•) ⛈️    │
+│     POSITIVE            NEUTRAL            NEGATIVE      │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+  </pre>
+</p>
 
 
-
-
-
-<img width="1440" height="834" alt="githubpic2" src="https://github.com/user-attachments/assets/6b562c47-d38b-4fcb-9542-dc0dd1a14d2d" />
-
-
-
-
-
-
-
-# 🚀 BrandPulse #
-
-**BrandPulse** es una aplicación *full-stack* de última generación diseñada para analizar y visualizar el sentimiento de textos en tiempo real. Combina la potencia de un backend robusto con una interfaz moderna para transformar datos textuales en información accionable.
-
----
-
-
-## 📋 Sobre el Proyecto
-
-BrandPulse permite a las empresas y desarrolladores medir la opinión de los clientes, monitorear la percepción de marca o analizar grandes volúmenes de texto. Utiliza una arquitectura avanzada que integra:
-
-- ⚙️ **Backend potente** basado en Java.
-- 🎨 **Frontend dinámico** con React.
-- 📊 **Analítica histórica** para identificar tendencias.
+<img width="1170" height="704" alt="Screenshot from 2026-01-15 17-40-36" src="https://github.com/user-attachments/assets/ef73a5b8-ed2c-417b-b2d9-d42ec031c26d" />
 
 ---
 
+## 🚀 ¿Qué es BrandPulse?
 
-## ✨ Características
+**BrandPulse** es una aplicación *full-stack* de última generación diseñada para analizar y visualizar el sentimiento de textos en tiempo real. Transforma datos textuales en información accionable mediante una arquitectura moderna y eficiente.
 
-- ⚡ **Análisis en Tiempo Real:** Clasificación instantánea de sentimientos (positivo, negativo, neutral) con puntuaciones de confianza precisas.
-- 📊 **Panel de Analíticas:** Visualización de tendencias mediante gráficos interactivos para entender la distribución del sentimiento a lo largo del tiempo.
-- 🌐 **API RESTful:** Una API robusta construida con Spring Boot para procesar solicitudes y servir datos estadísticos.
-- 🧠 **Integración con ONNX:** Uso de modelos de Machine Learning preentrenados en formato ONNX para predicciones ultrarrápidas.
-- 🗄️ **Registro de Solicitudes:** Seguimiento automático en base de datos para auditoría y análisis de datos históricos.
-- 💻 **Interfaz Interactiva:** UI moderna y amigable desarrollada con React y TypeScript.
+## ✨ Características Principales
 
----
+*   ⚡ **Análisis en Tiempo Real:** Clasificación instantánea con puntuaciones de confianza.
+*   📊 **Panel de Analíticas:** Gráficos interactivos para identificar tendencias de opinión.
+*   🧠 **Motor IA con ONNX:** Predicciones ultrarrápidas utilizando modelos de Machine Learning.
+*   🌐 **API RESTful:** Backend robusto desarrollado con **Spring Boot**.
+*   💻 **UI Moderna:** Interfaz fluida creada con **React** y **TypeScript**.
 
 
 ## 🛠️ Tecnologías Utilizadas
