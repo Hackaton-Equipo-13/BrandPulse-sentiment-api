@@ -69,4 +69,4 @@ Los siguientes endpoints están disponibles:
 
 ---
 
-Si quieres, también puedo ayudarte a hacer una versión más técnica, más sencilla o adaptada para usuarios no desarrolladores.
+
