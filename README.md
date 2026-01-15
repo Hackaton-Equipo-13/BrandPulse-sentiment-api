@@ -10,18 +10,19 @@
 </p>
 
 <p align="center">
-<pre align="center">
+  <code>
 ╭──────────────────────────────────────────────────────────╮
-│                      <b>BRANDPULSE</b>                          │
-│           <i>Sentimental Analysis Engine v1.0</i>               │
+│                       BRANDPULSE                         │
+│            Sentimental Analysis Engine v1.0              │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
 │     (•‿•) ✨             (•_•) 🌀             (•︵•) ⛈️    │
 │     POSITIVE            NEUTRAL            NEGATIVE      │
 │                                                          │
 ╰──────────────────────────────────────────────────────────╯
-</pre>
+  </code>
 </p>
+
 
 
 
