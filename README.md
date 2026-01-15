@@ -38,19 +38,6 @@
 
 
 
-<p align="center">
-  <a href="www.youtube.com">
-    <img src="img.youtube.com" alt="Video de BrandPulse" width="600">
-  </a>
-</p>
-
-
-
-
-
-
-
-
 
 
 
