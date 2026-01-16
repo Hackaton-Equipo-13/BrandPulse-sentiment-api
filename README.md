@@ -34,7 +34,7 @@
 
 ## 🚀 ¿Qué es BrandPulse?
 
-**BrandPulse** es una **plataforma full-stack de análisis de sentimiento** diseñada para procesar grandes volúmenes de texto y convertir opiniones en **insights accionables en tiempo real**.
+**BrandPulse** es una **aplicación web full-stack de análisis de sentimiento** diseñada para procesar grandes volúmenes de texto y convertir opiniones en **insights accionables en tiempo real**.
 
 Combina:
 
