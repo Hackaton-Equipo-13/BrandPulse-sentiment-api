@@ -90,7 +90,7 @@ El sistema visual no es una gráfica tradicional:
 * **Interacción directa** → cada nodo es clickable
 * **Panel flotante e interactivo, estilo terminal** (`>`) → Para subir archivos a un click en formato CSV, XLSX, JSON
 * **Visualización en tiempo real** → al subir un archivo se hace el análisis en tiempo real mostrando la cantidad de reviews o comentarios analizados
-* **Tres tipos de Gráficos de Datos** → gráfoco vertical, horizontal y tipo piechart
+* **Tres tipos de Gráficos de Datos interactivos** → gráfico vertical, horizontal y tipo piechart y un gráfico extra al posicionar el mouse sobre ellos.
 * **Historial en tiempo real** → historial de comentarios clasificados por fecha, comentario, clasificación y probabilidad
 * **Descarga de Historial en 3 formatos** → Descarga de historial de datos analizados en formato JSON, XLSX y CSV
 
