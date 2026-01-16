@@ -110,8 +110,9 @@ El sistema visual no es una gráfica tradicional:
 
 
 
-<img width="4724" height="1296" alt="triptix" src="https://github.com/user-attachments/assets/287a9950-97cf-4ad0-8f5b-2146938166fe" />
 
+
+<img width="4724" height="1296" alt="triptix" src="https://github.com/user-attachments/assets/4c796371-e870-4634-bcc7-8577fb7661a2" />
 
 
 
