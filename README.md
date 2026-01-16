@@ -377,20 +377,123 @@ Concepto en cada componente "El sistema visual y sus componentes deben ser inter
 
 ---
 
-### ▶️ Ejecución Local (Frontend)
+## ▶️ Ejecución Local (Frontend)
 
-**Requisitos**
+### 📋 Requisitos previos
 
-* Node.js
-* NVM
-* pnpm (recomendado)
+Asegúrate de tener instaladas las siguientes herramientas:
+
+* 📌 **Node.js (v24.x)**
+* 📌 **NVM** (Linux) o **Chocolatey** (Windows)
+* 📌 **pnpm** (para el proceso de build)
+
+---
+
+## 🛠️ Instalación de Node.js
+
+### 🐧 Linux (usando NVM)
 
 ```bash
-pnpm install
-pnpm run dev
+# Descarga e instala NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+
+# Carga NVM sin reiniciar la terminal
+. "$HOME/.nvm/nvm.sh"
+
+# Instala Node.js
+nvm install 24
+
+# Verifica la versión de Node.js
+node -v   # v24.13.0
+
+# Verifica la versión de npm
+npm -v    # 11.6.2
 ```
 
 ---
+
+### 🪟 Windows (usando Chocolatey)
+
+```powershell
+# Instala Chocolatey
+powershell -c "irm https://community.chocolatey.org/install.ps1 | iex"
+
+# Instala Node.js
+choco install nodejs --version="24.13.0"
+
+# Verifica la versión de Node.js
+node -v   # v24.13.0
+
+# Verifica la versión de npm
+npm -v    # 11.6.2
+```
+
+---
+
+## 📦 Instalación de PNPM (Global)
+
+```bash
+# Instala pnpm de forma global
+npm install -g pnpm
+
+# Verifica la instalación
+pnpm -v
+```
+
+---
+
+## 🚀 Build y Ejecución del Proyecto
+
+Una vez instalados todos los requisitos, sigue estos pasos:
+
+1. ✅ Abre el proyecto en tu IDE preferido.
+
+2. ✅ Navega al directorio del backend:
+
+   ```bash
+   cd FullStack-BrandPulse-main/sentiment-api
+   ```
+
+3. ✅ Ejecuta el build completo del proyecto:
+
+   ```bash
+   ./mvnw clean install
+   ```
+
+   Este proceso:
+
+   * Descarga dependencias
+   * Ejecuta tests (JUnit)
+   * Genera el archivo `.jar`
+
+4. ✅ Verifica que el build finalice con el mensaje **`BUILD SUCCESS`**.
+
+---
+
+## ▶️ Ejecución
+
+### 🔧 Modo Desarrollo
+
+Ejecuta la aplicación directamente desde el IDE:
+
+```
+src/main/java/com/hackathon/sentiment/SentimentApiApplication.java
+```
+
+Haz clic en **Run**.
+
+---
+
+### 📦 Modo Producción
+
+Ejecuta el archivo `.jar` generado:
+
+```bash
+java -jar target/sentiment-api-0.0.1-SNAPSHOT.jar
+```
+
+---
+
 
 # ⚙️ Back End
 
