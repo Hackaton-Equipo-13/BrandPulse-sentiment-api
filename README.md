@@ -65,7 +65,7 @@ Combina:
 
 Frontend desarrollado en **React + TypeScript + Vite**, orientado a la **visualización clara, dinámica y experimental** del sentimiento analizado.
 
-Incluye **tests locales hardcoded** con un algoritmo simple (EN / ES) para desarrollo sin backend.
+Incluye **tests Junit para análisis sentimiento postivo, negativo y neutro** .
 
 ### Características Clave
 
@@ -196,14 +196,76 @@ Concepto en cada componente "El sistema visual y sus componentes deben ser inter
 
 **Requisitos**
 
-* Node.js
-* NVM
-* pnpm (recomendado)
+* 📌Node.js
+* 📌NVM (Linux) o Chocolatey (Windows)
+* 📌pnpm (Para el Build)
 
-```bash
-pnpm install
-pnpm run dev
+**Instrucción de instalación (requisitos para Build)** 
+
+✅Descarga node.js en Linux:
+
+```Linux bash
+# Descarga e instalal nvm:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+
+# in lieu of restarting the shell
+\. "$HOME/.nvm/nvm.sh"
+
+# Descarga e instala Node.js:
+nvm install 24
+
+# Verifica the Node.js version:
+node -v # Should print "v24.13.0".
+
+# Verifica npm version:
+npm -v # Should print "11.6.2".
+
+
+
+✅Descarga node.js en Windows:
+
 ```
+```Windows bash
+
+# Descarga e instala Chocolatey:
+powershell -c "irm https://community.chocolatey.org/install.ps1|iex"
+
+# Descarga e instala Node.js:
+choco install nodejs --version="24.13.0"
+
+# Verifica the Node.js version:
+node -v # Should print "v24.13.0".
+
+# Verifica npm version:
+npm -v # Should print "11.6.2".
+
+
+```
+
+
+✅Instalar PNPM de forma global - bash
+```
+
+# Ejecuta el siguiente comando para instalar pnpm de forma global:
+npm install -g pnpm
+
+
+# Verifica la instalación escribiendo:
+pnpm -v
+
+
+
+```
+
+**Una vez instalado lo anterior sigue estos pasos para el Build**
+
+1- Abre el proyecto en tu IDE ✅
+2- haz "cd sentiment-api/ " (FullStack-BrandPulse-main/sentiment-api) ✅
+3- (dentro de sentiment-api/)haz ./mvnw clean install (para el Build completo del proyecto: dependencias, test Junit y el.jar) ✅
+5- Una vez teniendo el maven Springboot "BUILD SUCCESS" en consola ve al 6to o 7mo paso ✅
+6- Para desarrollo haz RUN en "SentimentApiApllication.java": FullStack-BrandPulse-main/sentiment-api/src/main/java/com/hackathon/sentiment/SentimentApiApplication.java ✅
+7- O Para Producción: Ejecuta el .jar (SNAPSHOT.jar) en FullStack-BrandPulse-main/sentiment-api/target/sentiment-api-0.0.1-SNAPSHOT.jar ✅
+
 
 ---
 
