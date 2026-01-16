@@ -30,35 +30,227 @@
 
 ---
 
+---
+
 ## 🚀 ¿Qué es BrandPulse?
 
-**BrandPulse** es una aplicación *full-stack* de última generación diseñada para analizar y visualizar el sentimiento de textos en tiempo real. Transforma datos textuales en información accionable mediante una arquitectura moderna y eficiente.
+**BrandPulse** es una **plataforma full-stack de análisis de sentimiento** diseñada para procesar grandes volúmenes de texto y convertir opiniones en **insights accionables en tiempo real**.
 
-## ✨ Características Principales
+Combina:
 
-*   ⚡ **Análisis en Tiempo Real:** Clasificación instantánea con puntuaciones de confianza.
-*   📊 **Panel de Analíticas:** Gráficos interactivos para identificar tendencias de opinión.
-*   🧠 **Motor IA con ONNX:** Predicciones ultrarrápidas utilizando modelos de Machine Learning.
-*   🌐 **API RESTful:** Backend robusto desarrollado con **Spring Boot**.
-*   💻 **UI Moderna:** Interfaz fluida creada con **React** y **TypeScript**.
+* Un **frontend interactivo** enfocado en visualización avanzada
+* Un **backend robusto** con API REST
+* Un **modelo de IA híbrido** exportado a **ONNX** para máxima interoperabilidad
+
+---
+
+## 🧩 Arquitectura General
+
+```
+[ React + TypeScript + Vite ]
+              ↓
+        [ API REST ]
+       (Spring Boot)
+              ↓
+     [ ONNX Runtime ]
+              ↓
+        [ PostgreSQL ]
+```
+
+---
+
+# 🎨 Front End
+
+### Descripción
+
+Frontend desarrollado en **React + TypeScript + Vite**, orientado a la **visualización clara, dinámica y experimental** del sentimiento analizado.
+
+Incluye **tests locales hardcoded** con un algoritmo simple (EN / ES) para desarrollo sin backend.
+
+### Características Clave
+
+* 📊 Gráficos dinámicos con **emojis animados**
+* 💬 Globos interactivos con resúmenes de comentarios
+* 📱 Diseño **responsive**
+* 📂 Soporte de entrada:
+
+  * JSON
+  * CSV
+  * XLSX *(integrado vía backend)*
+* 🔄 Output en el mismo formato de entrada
+
+---
+
+### 🌌 Concepto Visual: *Orbital Emoji System*
+
+El sistema visual no es una gráfica tradicional:
+
+* **PixelFace central** → sentimiento global
+* **Nodos orbitales** → fragmentos de texto analizados
+* **Interacción directa** → cada nodo es clickable
+* **Panel flotante estilo terminal** (`>`)
+
+#### Temas visuales
+
+* **NEON** (cyberpunk)
+* **LIGHT** (retro / brutalista)
+* **DARK** (estándar)
+
+#### Detalles técnicos destacados
+
+* Posicionamiento orbital con transformaciones CSS
+* Animaciones continuas (spin, scale, fade-in)
+* Colores semánticos:
+
+  * 🟢 Positivo `#10b981`
+  * 🔴 Negativo `#f43f5e`
+  * 🟠 Neutro `#f59e0b`
+
+---
+
+### ▶️ Ejecución Local (Frontend)
+
+**Requisitos**
+
+* Node.js
+* NVM
+* pnpm (recomendado)
+
+```bash
+pnpm install
+pnpm run dev
+```
+
+---
+
+# ⚙️ Back End
+
+### Descripción
+
+Backend desarrollado en **Java con Spring Boot**, responsable de:
+
+* Exponer la **API REST**
+* Orquestar el análisis de sentimiento
+* Ejecutar el modelo ONNX
+* Persistir resultados
+
+### Responsabilidades
+
+* Recepción de texto o archivos
+* Preprocesamiento básico
+* Inferencia vía **ONNX Runtime**
+* Persistencia en **PostgreSQL**
+* Retorno de resultados estructurados
+
+### Stack Backend
+
+* Java ☕
+* Spring Boot
+* JPA / Hibernate
+* ONNX Runtime (Java)
+* Maven
+* PostgreSQL 🐘
+
+---
+
+# 🧠 Modelo de IA – BrandPulse ONNX
+
+### Descripción General
+
+**BrandPulse Model** es un modelo **NLP híbrido y multilingüe**, diseñado para clasificar sentimientos en:
+
+* Positivo (1)
+* Negativo (0)
+* Neutro - umbral(0.2)
+
+Idiomas soportados:
+
+* 🇺🇸 Inglés
+* 🇪🇸 Español
+* 🇵🇹 Portugués
+
+---
+
+### Arquitectura del Modelo
+
+**Híbrida (Reglas + ML):**
+
+1. **Léxico Multilingüe**
+
+   * Palabras positivas, negativas y críticas
+   * Las palabras críticas tienen *peso prioritario*
+
+2. **Machine Learning**
+
+   * TF-IDF Vectorizer
+   * Logistic Regression
+   * Score de confianza
+
+---
+
+### Pipeline de Operación
+
+1. **Carga de datos**
+
+   * CSV / XLSX / input manual
+2. **Detección automática de idioma**
+3. **Preprocesamiento**
+
+   * Normalización
+   * Limpieza
+   * Stopwords
+4. **Clasificación híbrida**
+5. **Reporte visual**
+6. **Exportación a ONNX**
+
+---
+
+### Stack del Modelo
+
+* Python 3.12
+* Pandas
+* scikit-learn
+* nltk
+* langdetect
+* skl2onnx
+* matplotlib / seaborn
+* ONNX Runtime
+
+---
+
+### 📊 Métricas de Desempeño
+
+* **Accuracy:** 96%
+* **F1 Negativo:** 0.96
+* **F1 Positivo:** 0.96
+
+---
+
+### 🔗 Integración con Java
+
+El modelo se exporta como `BrandPulse.onnx` y se ejecuta en Spring Boot usando `onnxruntime-java`.
+
+* Entrada esperada: `StringTensor [1,1]`
+* Preprocesamiento incluido en el grafo ONNX
+
+---
+
+### ⚠️ Nota del Equipo de Data Science
+
+El modelo implementa **Peso Crítico**:
+palabras como *fraude, estafa, scam, robo* anulan cualquier score positivo, priorizando alertas de riesgo y seguridad.
+
+---
+
+## 📌 Estado del Proyecto
+
+🧪 En desarrollo activo ---> Versión Beta 0.1
+✔ Arquitectura definida
+✔ Modelo validado
+✔ Integración ONNX funcional
+
+---
 
 
-## 🛠️ Tecnologías Utilizadas
-
-### ⚙️ Backend
-- **Java** ☕
-- **Spring Boot:** Framework para la creación de la API REST.
-- **JPA (Hibernate):** Gestión y persistencia de datos.
-- **ONNX Runtime:** Motor de ejecución para el modelo de IA.
-- **Maven:** Gestión de dependencias y construcción.
-
-### 🎨 Frontend
-- **React** ⚛️
-- **TypeScript:** Tipado estático para un código más seguro.
-- **Vite:** Herramienta de construcción rápida para el frontend.
-- **Chart.js:** Biblioteca de visualización para gráficos interactivos.
-
-### 🗄️ Base de Datos
-- **PostgreSQL** 🐘
 
 ---
