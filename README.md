@@ -40,14 +40,6 @@
 
 
 
-¡Claro que sí! 🙌
-Te dejo una versión **más profesional, clara y atractiva** de tu `README.md`, manteniendo todo lo que ya tienes pero mejorando estructura, lenguaje y presentación. Está pensada para que se vea muy bien en GitHub y sea fácil de entender para otros devs.
-
-Puedes copiarla tal cual o ajustarla a tu gusto 👇
-
----
-
-````md
 # 🚀 API de Análisis de Sentimientos
 
 API REST desarrollada con **Spring Boot** que permite analizar el sentimiento de textos o del contenido de una URL, devolviendo una clasificación clara (**POSITIVE**, **NEGATIVE** o **NEUTRAL**) junto con métricas de confianza y estadísticas históricas.
