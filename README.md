@@ -83,16 +83,52 @@ Incluye **tests locales hardcoded** con un algoritmo simple (EN / ES) para desar
 
 ### 🌌 Concepto Visual: *Orbital Emoji System*
 
-El sistema visual no es una gráfica tradicional:
 
-* **PixelFace central** → sentimiento global
-* **Nodos orbitales** → fragmentos de texto analizados
+
+
+<img width="772" height="260" alt="Screenshot from 2026-01-15 19-45-46" src="https://github.com/user-attachments/assets/74bcc1c1-e6e2-4aae-a0c4-b07ece72e1ab" />
+
+
+
+
+
+Concepto en cada componente "El sistema visual y sus componentes deben ser interactivos y complementarios":
+
+* **PixelFace central** → los 3 emojis de sentimiento son la imagen principal junto a los pixeles y animaciones interactivas
+* **Logo Nodos orbitales** → logo emoji animado interactivo orbital con puslo animado
 * **Interacción directa** → cada nodo es clickable
 * **Panel flotante e interactivo, estilo terminal** (`>`) → Para subir archivos a un click en formato CSV, XLSX, JSON
 * **Visualización en tiempo real** → al subir un archivo se hace el análisis en tiempo real mostrando la cantidad de reviews o comentarios analizados
 * **Tres tipos de Gráficos de Datos interactivos** → gráfico vertical, horizontal y tipo piechart y un gráfico extra al posicionar el mouse sobre ellos.
 * **Historial en tiempo real** → historial de comentarios clasificados por fecha, comentario, clasificación y probabilidad
+* **Historial carousel slider** → historial de comentarios clasificados con slider enumerado cuando se acumulan más de 50 comentarios para agregar otra capa interactiva y de limpieza visual.
 * **Descarga de Historial en 3 formatos** → Descarga de historial de datos analizados en formato JSON, XLSX y CSV
+
+
+
+
+
+<img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-46" src="https://github.com/user-attachments/assets/f652a1bc-5c5f-49c1-b249-2948532e8eab" />
+
+
+
+
+
+
+
+
+
+<img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-53" src="https://github.com/user-attachments/assets/545ee699-8128-4ec6-9eae-bda7d7bc8973" />
+
+
+
+
+
+
+
+
+
+
 
 #### Temas visuales
 
