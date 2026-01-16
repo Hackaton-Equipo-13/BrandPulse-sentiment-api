@@ -40,6 +40,199 @@
 
 
 
+¡Claro que sí! 🙌
+Te dejo una versión **más profesional, clara y atractiva** de tu `README.md`, manteniendo todo lo que ya tienes pero mejorando estructura, lenguaje y presentación. Está pensada para que se vea muy bien en GitHub y sea fácil de entender para otros devs.
+
+Puedes copiarla tal cual o ajustarla a tu gusto 👇
+
+---
+
+````md
+# 🚀 API de Análisis de Sentimientos
+
+API REST desarrollada con **Spring Boot** que permite analizar el sentimiento de textos o del contenido de una URL, devolviendo una clasificación clara (**POSITIVE**, **NEGATIVE** o **NEUTRAL**) junto con métricas de confianza y estadísticas históricas.
+
+---
+
+## ✨ Características
+
+- 🔍 Análisis de sentimientos de texto
+- 🌐 Análisis de sentimientos desde una URL
+- 📊 Historial de solicitudes
+- 📈 Estadísticas agregadas de sentimientos
+- 📄 Documentación interactiva con Swagger UI
+- ⚡ API REST lista para integrarse en otros sistemas
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+- Java 17+
+- Spring Boot
+- Spring Web
+- Maven
+- Swagger / OpenAPI
+
+---
+
+## ▶️ Ejecución de la aplicación
+
+Desde el directorio raíz del proyecto (`sentiment-api`), ejecuta:
+
+```bash
+./mvnw spring-boot:run
+````
+
+La aplicación se iniciará en:
+
+```
+http://localhost:8080
+```
+
+---
+
+## 📘 Documentación de la API (Swagger UI)
+
+La API está completamente documentada con **Swagger UI**, lo que permite explorar y probar los endpoints directamente desde el navegador.
+
+👉 Acceso a Swagger UI:
+[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+---
+
+## 🔌 Endpoints disponibles
+
+### ➤ POST `/api/sentiment`
+
+Analiza el sentimiento de un texto proporcionado.
+
+**Request Body – `SentimentRequest`**
+
+```json
+{
+  "text": "¡Este es un gran producto!"
+}
+```
+
+**Response – `SentimentResponse`**
+
+```json
+{
+  "sentiment": "POSITIVE",
+  "confidence": 0.92,
+  "probabilities": {
+    "positive": 0.92,
+    "neutral": 0.05,
+    "negative": 0.03
+  }
+}
+```
+
+---
+
+### ➤ POST `/api/sentiment/url`
+
+Analiza el sentimiento del contenido textual obtenido desde una URL.
+
+**Request Body – `UrlSentimentRequest`**
+
+```json
+{
+  "url": "https://example.com/shops/"
+}
+```
+
+**Response**
+
+* `SentimentResponse` (idéntico al endpoint `/api/sentiment`)
+
+---
+
+### ➤ GET `/api/sentiment/history`
+
+Obtiene el historial completo de solicitudes de análisis de sentimientos.
+
+**Response**
+
+```json
+[
+  {
+    "text": "Excelente servicio",
+    "sentiment": "POSITIVE",
+    "timestamp": "2024-01-10T14:30:00"
+  }
+]
+```
+
+---
+
+### ➤ GET `/api/sentiment/stats`
+
+Devuelve estadísticas agregadas sobre los análisis realizados.
+
+**Response – `SentimentStatsResponse`**
+
+```json
+{
+  "totalRequests": 120,
+  "positivePercentage": 55.0,
+  "neutralPercentage": 30.0,
+  "negativePercentage": 15.0
+}
+```
+
+---
+
+## 🧪 Cómo probar la API con Swagger UI
+
+1. Abre [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+2. Selecciona el endpoint que deseas probar
+3. Haz clic en **Try it out**
+4. Completa el cuerpo de la solicitud (si aplica)
+5. Pulsa **Execute**
+6. Revisa la respuesta directamente en la interfaz
+
+---
+
+## 📌 Notas adicionales
+
+* Asegúrate de tener **Java JDK 21 ✅ Obligatorio: Eclipse Temurin JDK 21 (LTS).y Maven** correctamente configurados
+* Ideal para proyectos de análisis de texto, NLP o dashboards analíticos
+* Fácilmente extensible para nuevos modelos o proveedores de análisis
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
