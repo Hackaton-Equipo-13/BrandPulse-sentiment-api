@@ -92,6 +92,15 @@ Incluye **tests locales hardcoded** con un algoritmo simple (EN / ES) para desar
 
 
 
+
+
+
+
+
+
+
+
+
 Concepto en cada componente "El sistema visual y sus componentes deben ser interactivos y complementarios":
 
 * **PixelFace central** → los 3 emojis de sentimiento son la imagen principal junto a los pixeles y animaciones interactivas
@@ -108,6 +117,12 @@ Concepto en cada componente "El sistema visual y sus componentes deben ser inter
 
 
 
+
+
+
+
+
+
 <img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-46" src="https://github.com/user-attachments/assets/f652a1bc-5c5f-49c1-b249-2948532e8eab" />
 
 
@@ -118,7 +133,13 @@ Concepto en cada componente "El sistema visual y sus componentes deben ser inter
 
 
 
+
+
+
+
 <img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-53" src="https://github.com/user-attachments/assets/545ee699-8128-4ec6-9eae-bda7d7bc8973" />
+
+
 
 
 
