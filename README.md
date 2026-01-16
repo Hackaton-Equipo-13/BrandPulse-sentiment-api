@@ -121,6 +121,27 @@ El sistema visual no es una gráfica tradicional:
   * 🟢 Positivo `#10b981`
   * 🔴 Negativo `#f43f5e`
   * 🟠 Neutro `#f59e0b`
+ 
+
+
+
+
+
+<img width="4724" height="1296" alt="triptix" src="https://github.com/user-attachments/assets/79b2f131-730f-4b2e-a757-46e1fb0c907e" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
