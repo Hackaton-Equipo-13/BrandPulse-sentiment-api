@@ -59,7 +59,7 @@ API REST desarrollada con **Spring Boot** que permite analizar el sentimiento de
 
 ## 🛠️ Tecnologías utilizadas
 
-- Java 17+
+- Java 21 / ✅ JDK Temurin LTS
 - Spring Boot
 - Spring Web
 - Maven
