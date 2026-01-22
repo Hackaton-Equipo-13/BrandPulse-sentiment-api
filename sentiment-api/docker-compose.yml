@@ -1,0 +1,28 @@
+# Versión de la sintaxis de Docker Compose.
+# La versión '3.8' es moderna y ampliamente compatible.
+version: '3.8'
+
+# Definición de los servicios (contenedores) que componen tu aplicación.
+services:
+  # Nombre del servicio de tu API de sentimiento.
+  sentiment-api:
+    # Esta instrucción le dice a Docker Compose que construya la imagen
+    # usando el Dockerfile en el directorio actual ('.').
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # Asigna un nombre predecible al contenedor para que sea fácil de identificar.
+    container_name: brandpulse_api_container
+
+    # Mapea el puerto 8080 de tu máquina (host) al puerto 8080 del contenedor,
+    # que es donde la aplicación Spring Boot está escuchando.
+    ports:
+      - "8080:8080"
+
+    # Define las variables de entorno para el contenedor.
+    # Aquí es donde le decimos a Spring Boot que no configure una base de datos,
+    # permitiendo que la aplicación arranque sin PostgreSQL.
+    environment:
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
