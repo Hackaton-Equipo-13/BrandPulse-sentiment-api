@@ -5,14 +5,14 @@ import { ThemeMode, SentimentType, SentimentResult, ConnectionConfig, Language, 
 import { EmojiAtom } from './components/EmojiAtom';
 import { SentimentDisplay } from './components/SentimentDisplay';
 const AnalyticsCharts = lazy(() => import('./components/AnalyticsCharts').then(module => ({ default: module.AnalyticsCharts })));
-import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory } from './services/sentimentService';
+import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory, analyzeBatch } from './services/sentimentService';
 import { 
   Sun, Moon, Zap, 
   Terminal, ArrowDown, 
   Send, 
   Database,
   FileJson, FileText, FileCode,
-  Globe, Cpu, Layers, Link
+  Globe, Cpu, Layers, Link, Plus
 } from 'lucide-react';
 
 const translations = {
@@ -34,6 +34,22 @@ const translations = {
     link: "ENLACE",
     established: "ESTABLECIDO_V01.BETA",
     lang: "IDIOMA"
+    ,
+    // UI labels
+    chartDistribution: "_distribution_layer",
+    chartPrecision: "Precisión por categoría",
+    chartMatrix: "_precision_matrix",
+    positive: "Positivo",
+    negative: "Negativo",
+    neutral: "Neutro",
+    historyTitle: "Historial de comentarios clasificados",
+    downloadHistory: "Descargar historial",
+    date: "Fecha",
+    comment: "Comentario",
+    classification: "Clasificación",
+    probability: "Probabilidad",
+    processing: "Procesando:",
+    fileUploaded: "Archivo cargado:"
   },
   en: {
     title: "BRAND PULSE",
@@ -53,6 +69,22 @@ const translations = {
     link: "LINK",
     established: "ESTABLISHED_V01.BETA",
     lang: "LANGUAGE"
+    ,
+    // UI labels
+    chartDistribution: "_distribution_layer",
+    chartPrecision: "Precision by category",
+    chartMatrix: "_precision_matrix",
+    positive: "Positive",
+    negative: "Negative",
+    neutral: "Neutral",
+    historyTitle: "Classified comments history",
+    downloadHistory: "Download history",
+    date: "Date",
+    comment: "Comment",
+    classification: "Classification",
+    probability: "Probability",
+    processing: "Processing:",
+    fileUploaded: "Uploaded file:"
   },
   pt: {
     title: "BRAND PULSE",
@@ -72,6 +104,22 @@ const translations = {
     link: "LINK",
     established: "ESTABELECIDO_V01.BETA",
     lang: "IDIOMA"
+    ,
+    // UI labels
+    chartDistribution: "_distribution_layer",
+    chartPrecision: "Precisão por categoria",
+    chartMatrix: "_precision_matrix",
+    positive: "Positivo",
+    negative: "Negativo",
+    neutral: "Neutro",
+    historyTitle: "Histórico de comentários classificados",
+    downloadHistory: "Baixar histórico",
+    date: "Data",
+    comment: "Comentário",
+    classification: "Classificação",
+    probability: "Probabilidade",
+    processing: "Processando:",
+    fileUploaded: "Arquivo carregado:"
   }
 };
 
@@ -107,6 +155,7 @@ const App: React.FC = () => {
   const t = translations[lang];
 
   const handleClearHistory = () => {
+    setShowDownloadMenu(false);
     setHistory([]);
     setInputText('');
     setUrlInput('');
@@ -174,6 +223,7 @@ const App: React.FC = () => {
       setInputText(texts.join('\n')); // Still show all texts in textarea
       setTotalItemsInFile(texts.length);
 
+      // Process each text individually for real-time updates
       for (let i = 0; i < texts.length; i++) {
         if (cancelProcessingRef.current) {
           console.log('File processing cancelled.');
@@ -187,7 +237,7 @@ const App: React.FC = () => {
         try {
           // Introduce a small delay to allow UI updates and cancellation to be responsive
           await new Promise(resolve => setTimeout(resolve, 50)); 
-          const data = await analyzeSentiment(text);
+          const data = await analyzeSentiment(text); // Analyze individual text
           setResult(data); // Update result with the latest analysis
         } catch (error) {
           console.error(`Error analyzing text ${i + 1}:`, error);
@@ -347,7 +397,6 @@ const App: React.FC = () => {
                                 className={`relative group p-4 border-4 rounded-2xl transition-all flex flex-col ${isNeon ? 'bg-black border-pink-500/30 neon-animated-border' : isLight ? 'bg-slate-50 border-slate-900' : 'bg-slate-900 border-current'}`}
                                 onDrop={handleDrop}
                                 onDragOver={(e) => e.preventDefault()}
-                                onClick={() => document.getElementById('fileInput')?.click()} // Trigger hidden file input
                               >
                                 <textarea
                                   value={inputText}
@@ -363,22 +412,33 @@ const App: React.FC = () => {
                                     onChange={(e) => handleFile(e.target.files ? e.target.files[0] : null)}
                                     className="hidden"
                                   />
-                                <button
-                                  onClick={handleGeneralAnalyze}
-                                  disabled={isAnalyzing || (!inputText.trim() && !urlInput.trim()) || processingFile} // Disable when processing file
-                                  className={`w-full mt-4 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] rounded-lg ${
-                                    isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff] neon-animated-border' :
-                                    isLight ? 'bg-slate-900 text-white hover:bg-slate-800' :
-                                    'bg-current text-slate-900 hover:bg-slate-300'
-                                  } ${ (isAnalyzing || (!inputText.trim() && !urlInput.trim()) || processingFile) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-100' }`}
-                                >
-                                  {isAnalyzing ? (processingFile ? `${t.waiting} (${processingProgress}/${totalItemsInFile})` : t.waiting) : (<>{t.execute} <Send size={20} /></>)}
-                                </button>
+                                <div className="mt-4 flex items-center gap-2">
+                                  <button
+                                    onClick={handleGeneralAnalyze}
+                                    disabled={isAnalyzing || (!inputText.trim() && !urlInput.trim()) || processingFile} // Disable when processing file
+                                    className={`flex-1 py-6 font-bold uppercase flex items-center justify-center gap-4 transition-all font-pixel text-[14px] rounded-lg ${
+                                      isNeon ? 'bg-pink-600 hover:bg-pink-500 shadow-[0_0_25px_#ff00ff] neon-animated-border' :
+                                      isLight ? 'bg-slate-900 text-white hover:bg-slate-800' :
+                                      'bg-current text-slate-900 hover:bg-slate-300'
+                                    } ${ (isAnalyzing || (!inputText.trim() && !urlInput.trim()) || processingFile) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-100' }`}
+                                  >
+                                    {isAnalyzing ? (processingFile ? `${t.waiting} (${processingProgress}/${totalItemsInFile})` : t.waiting) : (<>{t.execute} <Send size={20} /></>)}
+                                  </button>
+
+                                  <button
+                                    onClick={() => document.getElementById('fileInput')?.click()}
+                                    title="Adjuntar archivo"
+                                    disabled={processingFile}
+                                    className={`p-4 rounded-lg flex items-center justify-center transition-all ${isNeon ? 'bg-pink-700 text-white' : isLight ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'} ${processingFile ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}`}
+                                  >
+                                    <Plus size={18} />
+                                  </button>
+                                </div>
                 
                                 {processingFile && (
                                   <div className="mt-4 text-center">
                                     <p className="font-pixel text-xs">
-                                      Procesando: {processingProgress} / {totalItemsInFile}
+                                      {t.processing} {processingProgress} / {totalItemsInFile}
                                     </p>
                                     <p className="font-mono text-[10px] opacity-70 truncate" title={currentlyAnalyzingText}>
                                       "{currentlyAnalyzingText}"
@@ -394,7 +454,7 @@ const App: React.FC = () => {
                                   </div>
                                 )}
                                 {uploadedFileName && !processingFile && (
-                                  <div className="mt-2 text-xs text-cyan-400 font-pixel truncate">Archivo cargado: {uploadedFileName}</div>
+                                  <div className="mt-2 text-xs text-cyan-400 font-pixel truncate">{t.fileUploaded} {uploadedFileName}</div>
                                 )}
                               </div>            </div>
           </div>
@@ -406,6 +466,7 @@ const App: React.FC = () => {
                 <SentimentDisplay
                   result={result}
                   theme={theme}
+                  t={t}
                 />
               </div>
             ) : (
@@ -422,7 +483,7 @@ const App: React.FC = () => {
         {result && (
           <div className="mt-16 w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
             <Suspense fallback={<div className="w-full h-96 flex items-center justify-center font-pixel opacity-50">LOADING_ANALYTICS...</div>}>
-              <AnalyticsCharts data={result} theme={theme} />
+                <AnalyticsCharts data={result} theme={theme} t={t} />
             </Suspense>
           </div>
         )}
@@ -430,7 +491,7 @@ const App: React.FC = () => {
         {/* Historial de comentarios */}
         <div className={`w-full bg-white/10 rounded-lg p-4 select-none mt-12 mb-8 max-w-7xl mx-auto ${isLight ? 'bg-white/80' : ''}`}>
           <div className="flex justify-between items-center mb-2">
-            <span className="font-doto text-lg">Historial de comentarios clasificados</span>
+            <span className="font-doto text-lg">{t.historyTitle}</span>
             <div className="flex gap-2"> {/* Added flex container for buttons */}
               <button
                 onClick={handleClearHistory}
@@ -443,7 +504,7 @@ const App: React.FC = () => {
                   className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-ibm-plex text-xs rounded-lg shadow transition-transform hover:scale-105"
                   onClick={() => setShowDownloadMenu(!showDownloadMenu)}
                 >
-                  Descargar historial
+                  {t.downloadHistory}
                 </button>
                 {showDownloadMenu && (
                   <div className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg z-20 ${isLight ? 'bg-white' : 'bg-slate-800'}`}>
@@ -477,10 +538,10 @@ const App: React.FC = () => {
             <table className="min-w-full w-full text-xs text-left font-ibm-plex">
               <thead>
                 <tr className="border-b border-slate-300/20">
-                  <th className="py-1 pr-2">Fecha</th>
-                  <th className="py-1 pr-2">Comentario</th>
-                  <th className="py-1 pr-2">Clasificación</th>
-                  <th className="py-1 pr-2">Probabilidad</th>
+                  <th className="py-1 pr-2">{t.date}</th>
+                  <th className="py-1 pr-2">{t.comment}</th>
+                  <th className="py-1 pr-2">{t.classification}</th>
+                  <th className="py-1 pr-2">{t.probability}</th>
                 </tr>
               </thead>
               <tbody>
@@ -492,9 +553,9 @@ const App: React.FC = () => {
                     <td className="py-1 pr-2 whitespace-nowrap">{new Date(item.fecha).toLocaleString()}</td>
                     <td className="py-1 pr-2 max-w-[600px] truncate" title={item.text}>{item.text}</td>
                     <td className="py-1 pr-2 font-bold">
-                      {item.prevision === 'POSITIVE' && <span className="text-green-500">Positivo</span>}
-                      {item.prevision === 'NEGATIVE' && <span className="text-red-500">Negativo</span>}
-                      {item.prevision === 'NEUTRAL' && <span className="text-yellow-500">Neutral</span>}
+                      {item.prevision === 'POSITIVE' && <span className="text-green-500">{t.positive}</span>}
+                      {item.prevision === 'NEGATIVE' && <span className="text-red-500">{t.negative}</span>}
+                      {item.prevision === 'NEUTRAL' && <span className="text-yellow-500">{t.neutral}</span>}
                     </td>
                     <td className="py-1 pr-2">{item.probabilidad.toFixed(2)}</td>
                   </tr>
@@ -575,4 +636,3 @@ function downloadHistory(format: 'xlsx' | 'csv' | 'json', history: SentimentLog[
 }
 
 export default App;
-

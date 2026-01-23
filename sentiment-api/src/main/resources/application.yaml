@@ -1,6 +1,21 @@
 spring:
   application:
     name: sentiment-api
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
 onnx:
   model:
     path: model/BrandPulse.onnx

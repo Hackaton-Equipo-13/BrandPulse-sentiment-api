@@ -18,8 +18,12 @@ import java.util.List;
 import com.hackathon.sentiment.dto.SentimentStatsResponse;
 import com.hackathon.sentiment.service.SentimentStatsService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/sentiment")
+@Slf4j
 public class SentimentController {
     private final com.hackathon.sentiment.service.SentimentService sentimentService;
     private final SentimentStatsService sentimentStatsService;
@@ -42,12 +46,14 @@ public class SentimentController {
         return ResponseEntity.ok(response);
     }
 
-    /*
     // Endpoint para procesamiento por lote (CSV)
     @PostMapping(value = "/batch", consumes = "multipart/form-data")
     public ResponseEntity<List<SentimentResponse>> analyzeBatch(@RequestParam("file") MultipartFile file) {
         List<SentimentResponse> results = new ArrayList<>();
         String filename = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase() : "";
+        log.info("Processing batch file: {}", filename); // Log filename
+        log.debug("Filename: '{}', endsWith .csv: {}, endsWith .xlsx: {}, endsWith .json: {}",
+                  filename, filename.endsWith(".csv"), filename.endsWith(".xlsx"), filename.endsWith(".json"));
         try {
             if (filename.endsWith(".csv")) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
@@ -69,10 +75,32 @@ public class SentimentController {
                     boolean first = true;
                     for (Row row : sheet) {
                         if (first) { first = false; continue; } // Saltar encabezado
-                        Cell cell = row.getCell(0);
+                        Cell cell = row.getCell(0); // Get the first cell
                         if (cell != null) {
-                            String text = cell.getStringCellValue().trim();
-                            if (!text.isEmpty() && text.length() >= 3) {
+                            String text;
+                            // Handle different cell types
+                            switch (cell.getCellType()) {
+                                case STRING:
+                                    text = cell.getStringCellValue();
+                                    break;
+                                case NUMERIC:
+                                    if (DateUtil.isCellDateFormatted(cell)) {
+                                        text = cell.getDateCellValue().toString();
+                                    } else {
+                                        text = String.valueOf(cell.getNumericCellValue());
+                                    }
+                                    break;
+                                case BOOLEAN:
+                                    text = String.valueOf(cell.getBooleanCellValue());
+                                    break;
+                                case FORMULA:
+                                    text = cell.getCellFormula(); // May need further evaluation
+                                    break;
+                                default:
+                                    text = "";
+                            }
+                            text = text.trim(); // Trim whitespace
+                            if (!text.isEmpty() && text.length() >= 3) { // Ensure text is not too short
                                 SentimentRequest req = new SentimentRequest();
                                 req.setText(text);
                                 results.add(sentimentService.predict(req));
@@ -80,15 +108,30 @@ public class SentimentController {
                         }
                     }
                 }
+            } else if (filename.endsWith(".json")) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                // Expecting a JSON array of objects with a "text" or "comment" field
+                List<java.util.Map<String, String>> texts = objectMapper.readValue(file.getInputStream(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, java.util.Map.class));
+                for (java.util.Map<String, String> map : texts) {
+                    String text = map.getOrDefault("text", map.getOrDefault("comment", ""));
+                    text = text.trim();
+                    if (!text.isEmpty() && text.length() >= 3) {
+                        SentimentRequest req = new SentimentRequest();
+                        req.setText(text);
+                        results.add(sentimentService.predict(req));
+                    }
+                }
             } else {
+                log.error("Unsupported file type for batch analysis: {}", filename); // Log unsupported file type
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
             }
         } catch (Exception e) {
+            log.error("Error during batch file processing for {}: {}", filename, e.getMessage(), e); // Log general exception
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
         return ResponseEntity.ok(results);
     }
-    */
 
     @GetMapping("/history")
     public ResponseEntity<List<com.hackathon.sentiment.entity.SentimentLog>> getHistory() {
