@@ -14,6 +14,7 @@ import com.hackathon.sentiment.repository.SentimentLogRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -170,5 +171,11 @@ public class SentimentService {
 
     public List<SentimentLog> getHistory() {
         return sentimentLogRepository.findAllByOrderByFechaDesc();
+    }
+
+    @Transactional
+    public void clearHistory() {
+        sentimentLogRepository.deleteAll();
+        logger.info("Sentiment history cleared from database.");
     }
 }

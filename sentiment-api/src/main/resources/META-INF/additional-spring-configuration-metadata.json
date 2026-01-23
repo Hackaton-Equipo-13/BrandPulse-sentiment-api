@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "onnx.simulation",
+      "type": "java.lang.String",
+      "description": "A description for 'onnx.simulation'"
+    },
+    {
+      "name": "onnx.model.path",
+      "type": "java.lang.String",
+      "description": "A description for 'onnx.model.path'"
+    }
+  ]
+}

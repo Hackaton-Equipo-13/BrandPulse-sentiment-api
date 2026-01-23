@@ -5,7 +5,7 @@ import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OnnxValue;
-import org.springframework.beans.factory.annotation.Value;
+import com.hackathon.sentiment.config.OnnxProperties;
 import org.springframework.stereotype.Component;
 
 import org.slf4j.Logger;
@@ -23,24 +23,24 @@ import java.util.Map;
 public class OnnxModelHandler {
     private static final Logger logger = LoggerFactory.getLogger(OnnxModelHandler.class);
 
+    private final OnnxProperties onnxProperties;
     private OrtEnvironment env;
     private OrtSession session;
 
-    @Value("${onnx.model.path:model/BrandPulse.onnx}")
-    private String modelPath;
-
-    @Value("${onnx.simulation:false}")
-    private boolean simulation;
+    public OnnxModelHandler(OnnxProperties onnxProperties) {
+        this.onnxProperties = onnxProperties;
+    }
 
     @PostConstruct
     public void init() {
-        if (simulation) {
+        if (onnxProperties.isSimulation()) {
             // Modo simulación, no carga modelo
             logger.info("⚠️ ONNX Model Handler está en modo simulación. No se cargará ningún modelo.");
             return;
         }
         try {
             env = OrtEnvironment.getEnvironment();
+            String modelPath = onnxProperties.getModel().getPath();
             InputStream modelStream = getClass().getClassLoader().getResourceAsStream(modelPath);
             if (modelStream == null) {
                 throw new RuntimeException("❌ No se pudo encontrar el modelo ONNX en la ruta del classpath: " + modelPath);
@@ -63,7 +63,7 @@ public class OnnxModelHandler {
     }
 
     public float[][] predict(String text) throws OrtException {
-        if (simulation) {
+        if (onnxProperties.isSimulation()) {
             logger.info("ONNX simulation for text: '{}'", text);
             // Simulate a slightly varied neutral response
             return new float[][]{{0.1f, 0.8f, 0.1f}};

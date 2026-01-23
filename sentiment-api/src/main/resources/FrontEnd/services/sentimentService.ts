@@ -72,3 +72,18 @@ export const analyzeBatch = async (file: File): Promise<SentimentResult[]> => {
   });
   return handleResponse<SentimentResult[]>(response);
 };
+
+/**
+ * Clears all sentiment history from the backend.
+ * @returns A promise that resolves when the history is cleared.
+ */
+export const clearSentimentHistory = async (): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/history`, {
+    method: 'DELETE',
+  });
+  // No content expected for a DELETE operation, just check for success
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`API Error: ${response.status}`);
+  }
+};

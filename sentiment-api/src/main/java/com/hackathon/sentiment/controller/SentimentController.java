@@ -144,4 +144,10 @@ public class SentimentController {
         SentimentStatsResponse stats = sentimentStatsService.getStats();
         return ResponseEntity.ok(stats);
     }
+
+    @DeleteMapping("/history")
+    public ResponseEntity<Void> clearHistory() {
+        sentimentService.clearHistory();
+        return ResponseEntity.noContent().build();
+    }
 }

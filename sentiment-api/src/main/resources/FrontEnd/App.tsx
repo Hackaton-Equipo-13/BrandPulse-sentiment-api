@@ -154,7 +154,7 @@ const App: React.FC = () => {
   );
   const t = translations[lang];
 
-  const handleClearHistory = () => {
+  const handleClearHistory = async () => {
     setShowDownloadMenu(false);
     setHistory([]);
     setInputText('');
@@ -162,6 +162,14 @@ const App: React.FC = () => {
     setUploadedFileName(null);
     setResult(null);
     setCurrentPage(1); // Reset pagination
+    try {
+      await clearSentimentHistory(); // Call backend to clear history
+      // After clearing, re-fetch the history to ensure UI is in sync
+      getSentimentHistory().then(setHistory).catch(() => setHistory([])); 
+      console.log("History cleared successfully.");
+    } catch (error) {
+      console.error("Failed to clear history:", error);
+    }
   };
 
   const handleTextAnalyze = async () => {
