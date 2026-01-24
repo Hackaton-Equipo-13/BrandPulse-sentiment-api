@@ -5,7 +5,7 @@ import { ThemeMode, SentimentType, SentimentResult, ConnectionConfig, Language, 
 import { EmojiAtom } from './components/EmojiAtom';
 import { SentimentDisplay } from './components/SentimentDisplay';
 const AnalyticsCharts = lazy(() => import('./components/AnalyticsCharts').then(module => ({ default: module.AnalyticsCharts })));
-import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory, analyzeBatch } from './services/sentimentService';
+import { analyzeSentiment, analyzeSentimentFromUrl, getSentimentHistory, clearSentimentHistory, analyzeBatch } from './services/sentimentService';
 import { 
   Sun, Moon, Zap, 
   Terminal, ArrowDown, 

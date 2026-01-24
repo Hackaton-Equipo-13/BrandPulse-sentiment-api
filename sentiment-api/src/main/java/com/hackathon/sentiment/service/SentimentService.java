@@ -8,7 +8,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import com.hackathon.sentiment.onnx.OnnxModelHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.hackathon.sentiment.entity.SentimentLog;
 import com.hackathon.sentiment.repository.SentimentLogRepository;
 
@@ -37,6 +36,7 @@ public class SentimentService {
     private final SentimentLogRepository sentimentLogRepository;
 
     private static final double NEUTRAL_THRESHOLD = 0.2; // Define a threshold for neutrality
+
 
     public SentimentService(OnnxModelHandler onnxModelHandler, SentimentLogRepository sentimentLogRepository) {
         this.onnxModelHandler = onnxModelHandler;
@@ -76,20 +76,24 @@ public class SentimentService {
             }
         }
 
-        float[] allProbabilities = new float[0];
+        Breakdown breakdown = new Breakdown(0.0, 1.0, 0.0); // Default to neutral
+
         try {
             if (text == null) {
                 text = "";
             }
             float[][] output = onnxModelHandler.predict(text);
-            if (output != null && output.length > 0 && output[0].length == 2) { // Expect 2 probabilities now
-                allProbabilities = output[0]; // Store all probabilities [Negative, Positive]
+
+            if (output != null && output.length > 0 && output[0].length == 2) {
+                float[] allProbabilities = output[0]; // [Negative, Positive]
                 float negProb = allProbabilities[0];
                 float posProb = allProbabilities[1];
 
-                logger.info("Raw probabilities from ONNX model: {}", Arrays.toString(allProbabilities));
+                logger.info("Raw probabilities from ONNX model: [Negative: {}, Positive: {}]", negProb, posProb);
 
-                // Determine sentiment based on probabilities
+                double neutralProb = 1.0 - (negProb + posProb);
+
+
                 if (Math.abs(posProb - negProb) < NEUTRAL_THRESHOLD) {
                     sentiment = "NEUTRAL";
                     probability = Math.max(posProb, negProb); // Use higher of two for neutral confidence
@@ -100,36 +104,17 @@ public class SentimentService {
                     sentiment = "NEGATIVE";
                     probability = negProb;
                 }
+                
+                breakdown = new Breakdown(posProb, neutralProb, negProb);
+
+            } else {
+                logger.warn("ONNX model output is not in the expected format (float[1][2]). Received: {}", Arrays.deepToString(output));
             }
         } catch (OrtException e) {
             System.err.println("Error executing ONNX model: " + e.getMessage());
-            // If an error occurs, sentiment remains "NEUTRAL" and probability 0.5
         }
 
         int score = (int) Math.round(probability * 100);
-
-        // Create breakdown based on the 2 probabilities
-        Breakdown breakdown;
-        if (allProbabilities.length == 2) {
-            // Assuming order [Negative, Positive] from the model output
-            double probNeg = allProbabilities[0];
-            double probPos = allProbabilities[1];
-             breakdown = new Breakdown(probPos, 0.0, probNeg);
-
-
-        } else if (allProbabilities.length == 3) { // Fallback for 3 probabilities if somehow present
-            logger.warn("Received 3 probabilities from a model expected to output 2. Using 3-probability logic.");
-            breakdown = new Breakdown(
-                allProbabilities[2], // Positive
-                allProbabilities[1], // Neutral
-                allProbabilities[0]  // Negative
-            );
-        }
-        else {
-            // Fallback if probabilities are not as expected (e.g., 0 probabilities)
-            // Assign 1.0 to neutral if no valid probabilities are present
-            breakdown = new Breakdown(0, 1.0, 0);
-        }
         
         String snippet = (text != null) ? text.substring(0, Math.min(text.length(), 120)) : "";
 
@@ -144,12 +129,10 @@ public class SentimentService {
         logger.info("Sentiment Analysis Result for text: '{}'", text);
         logger.info("  -> Predicted Sentiment: {}", sentiment);
         logger.info("  -> Score: {}", score);
-        if (breakdown != null) {
-            logger.info("  -> Breakdown: Positive={}, Neutral={}, Negative={}",
-                    String.format("%.4f", breakdown.getPositive()),
-                    String.format("%.4f", breakdown.getNeutral()),
-                    String.format("%.4f", breakdown.getNegative()));
-        }
+        logger.info("  -> Breakdown: Positive={}, Neutral={}, Negative={}",
+                String.format("%.4f", breakdown.getPositive()),
+                String.format("%.4f", breakdown.getNeutral()),
+                String.format("%.4f", breakdown.getNegative()));
 
         return new SentimentResponse(sentiment, score, snippet, snippet, snippet, breakdown);
     }

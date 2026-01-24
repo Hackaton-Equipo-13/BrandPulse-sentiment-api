@@ -1,33 +1,34 @@
 
 import React, { useEffect, useState } from 'react';
-import { SentimentType } from '../types';
+import { SentimentType, Breakdown } from '../types';
 
 interface PixelFaceProps {
   type: SentimentType;
-  percentage: number;
-  breakdown?: {
-    positive: number;
-    neutral: number;
-    negative: number;
-  };
+  breakdown?: Breakdown;
   size?: number;
   isNeon?: boolean;
 }
 
-export const PixelFace: React.FC<PixelFaceProps> = ({ type, percentage, breakdown, size = 180, isNeon }) => {
+export const PixelFace: React.FC<PixelFaceProps> = ({ type, breakdown, size = 180, isNeon }) => {
   const [particles, setParticles] = useState<{ x: number; y: number; delay: number; size: number; duration: number }[]>([]);
 
   useEffect(() => {
-    const count = Math.floor(percentage / 1.5); 
+    // Dynamically adjust particle count based on overall intensity or dominant sentiment
+    // Use the dominant sentiment's probability for particle effect, if breakdown is available
+    const effectivePercentage = (breakdown && breakdown[type.toLowerCase() as keyof Breakdown] !== undefined)
+      ? breakdown[type.toLowerCase() as keyof Breakdown] * 100
+      : 0;
+
+    const count = Math.floor(effectivePercentage / 1.5); 
     const newParticles = Array.from({ length: count }).map(() => ({
       x: 20 + Math.random() * 60,
-      y: 85 - Math.random() * (percentage * 0.7), 
+      y: 85 - Math.random() * (effectivePercentage * 0.7), 
       delay: Math.random() * 3,
       size: 2 + Math.random() * 3,
       duration: 2 + Math.random() * 2
     }));
     setParticles(newParticles);
-  }, [percentage, type]);
+  }, [breakdown, type]);
 
   const getColors = () => {
     switch (type) {
@@ -87,9 +88,9 @@ export const PixelFace: React.FC<PixelFaceProps> = ({ type, percentage, breakdow
                 100% { transform: translate(calc(-50% + ${Math.random() * 200 - 100}px), calc(-50% + ${Math.random() * 200 - 100}px)) rotate(${Math.random() * 360}deg) scale(1.5); opacity: 0; }
               }
               @keyframes burstCube {
-                0% { transform: translate(-50%, -50%) rotate(0deg) scale(0); opacity: 0; }
+                0% { transform: translateY(0) rotate(0deg) scale(0); opacity: 0; }
                 20% { opacity: 1; }
-                100% { transform: translate(calc(-50% + ${Math.random() * 160 - 80}px), calc(-50% + ${Math.random() * 160 - 80}px)) rotate(45deg) scale(1.2); opacity: 0; }
+                100% { transform: translateY(${size + 120}px) rotate(45deg) scale(1.2); opacity: 0; }
               }
             `}</style>
           </div>
@@ -243,12 +244,14 @@ export const PixelFace: React.FC<PixelFaceProps> = ({ type, percentage, breakdow
       </svg>
 
       {/* Sentiment Tag */}
-      <div className={`mt-8 px-6 py-1.5 border-4 ${isNeon ? 'neon-border-cyan bg-black' : 'border-slate-900 bg-white dark:bg-slate-900'} relative z-20 flex items-center gap-3 rounded-lg`}>
-         <div className="w-2 h-2 bg-current animate-ping" style={{ color: colors.base }} />
-         <span className={`font-pixel text-[11px] tracking-widest ${isNeon ? 'text-white' : 'text-current'}`}>
-           {type} {percentage.toFixed(0)}%
-         </span>
-      </div>
+      {breakdown && (
+        <div className={`mt-8 px-6 py-1.5 border-4 ${isNeon ? 'neon-border-cyan bg-black' : 'border-slate-900 bg-white dark:bg-slate-900'} relative z-20 flex items-center gap-3 rounded-lg`}>
+           <div className="w-2 h-2 bg-current animate-ping" style={{ color: colors.base }} />
+           <span className={`font-pixel text-[11px] tracking-widest ${isNeon ? 'text-white' : 'text-current'}`}>
+             {type}: {(breakdown[type.toLowerCase() as keyof Breakdown] * 100).toFixed(0)}%
+           </span>
+        </div>
+      )}
     </div>
   );
 };

@@ -110,8 +110,7 @@ export const SentimentDisplay: React.FC<SentimentDisplayProps> = ({ result, them
         <div className="relative z-10 flex flex-col items-center animate-in zoom-in-50 duration-500">
           <PixelFace 
             type={sentiment} 
-            percentage={breakdown[sentiment.toLowerCase() as keyof typeof breakdown] || 0} 
-            breakdown={breakdown}
+            breakdown={breakdown} // Pass the full breakdown object
             size={180}
             isNeon={isNeon}
           />
