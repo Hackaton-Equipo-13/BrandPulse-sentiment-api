@@ -91,8 +91,9 @@ Incluye **tests Junit para análisis sentimiento postivo, negativo y neutro** .
 
 
 
-<img width="772" height="260" alt="Screenshot from 2026-01-15 19-45-46" src="https://github.com/user-attachments/assets/74bcc1c1-e6e2-4aae-a0c4-b07ece72e1ab" />
 
+
+![brandpulse-SentiDisplay](https://github.com/user-attachments/assets/1c528d0f-770a-4aa2-a273-56551e78602e)
 
 
 
