@@ -37,8 +37,8 @@
 
 Combina:
 
-* Un **frontend interactivo** enfocado en visualización avanzada
-* Un **backend robusto** con API REST
+* Un **frontend interactivo** enfocado en visualización de análisis de sentimiento con animaciones, emojis y gráficos
+* Un **backend robusto** con API REST monolítica 
 * Un **modelo de IA híbrido** exportado a **ONNX** para máxima interoperabilidad
 
 
