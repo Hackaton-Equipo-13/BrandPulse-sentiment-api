@@ -25,7 +25,7 @@
 
 
 
-<img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-31" src="https://github.com/user-attachments/assets/2f9e6ca0-bce8-49c2-b56e-1385990d589a" />
+
 
 ---
 
@@ -40,6 +40,12 @@ Combina:
 * Un **frontend interactivo** enfocado en visualización avanzada
 * Un **backend robusto** con API REST
 * Un **modelo de IA híbrido** exportado a **ONNX** para máxima interoperabilidad
+
+
+
+
+<img width="1440" height="900" alt="Screenshot from 2026-01-14 18-25-31" src="https://github.com/user-attachments/assets/2f9e6ca0-bce8-49c2-b56e-1385990d589a" />
+
 
 ---
 
