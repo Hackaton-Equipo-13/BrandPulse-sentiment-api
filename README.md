@@ -1,8 +1,7 @@
 
 
 
-
-https://github.com/user-attachments/assets/9c3916c5-e4b5-4d79-9f40-b3d3a4a504d2
+![brandpulse-banner-neon](https://github.com/user-attachments/assets/45430afd-48e9-48f0-9869-854898ab4e2c)
 
 
 
